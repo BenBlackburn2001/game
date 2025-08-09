@@ -60,11 +60,20 @@
     const coalCostScale = 1.15;
     const ironCostScale = 1.5;
 
-    function formatNumber(num) {
-      if (num >= 1e9) return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'b';
-      if (num >= 1e6) return (num / 1e6).toFixed(2).replace(/\.00$/, '') + 'm';
-      if (num >= 1e3) return (num / 1e3).toFixed(2).replace(/\.00$/, '') + 'k';
-    return num;
+function formatNumber(num) {
+  const suffixes = [
+    '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
+    'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod'
+  ];
+  if (num < 1000) return num;
+  const tier = Math.floor(Math.log10(num) / 3);
+  if (tier >= suffixes.length) return num.toExponential(2);
+  const suffix = suffixes[tier];
+  const scale = Math.pow(10, tier * 3);
+  let scaled = num / scale;
+  // Remove trailing .00 if present
+  scaled = scaled.toFixed(2).replace(/\.00$/, '');
+  return scaled + suffix;
 }
 
 function getTotalCost(base, scale, owned, amount) {
