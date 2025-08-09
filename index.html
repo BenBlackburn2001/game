@@ -58,21 +58,43 @@
     const socket = io('http://localhost:3000');
 
     // --- Number Formatting ---
-    function formatNumber(num) {
-      if (num instanceof BigNumber) num = num.toNumber();
-      const suffixes = [
-        '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
-        'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod'
-      ];
-      if (num < 1000) return num;
-      const tier = Math.floor(Math.log10(num) / 3);
-      if (tier >= suffixes.length) return num.toExponential(2);
-      const suffix = suffixes[tier];
-      const scale = Math.pow(10, tier * 3);
-      let scaled = num / scale;
-      scaled = scaled.toFixed(2).replace(/\.00$/, '');
-      return scaled + suffix;
-    }
+function formatNumber(num) {
+  if (num instanceof BigNumber) num = num.toNumber();
+  const suffixes = [
+    '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
+    'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
+    'Vg',  // Vigintillion
+    'Uv',  // Unvigintillion
+    'Dv',  // Duovigintillion
+    'Tv',  // Trevigintillion
+    'Qav', // Quattuorvigintillion
+    'Qiv', // Quinvigintillion
+    'Sxv', // Sexvigintillion
+    'Spv', // Septenvigintillion
+    'Ocv', // Octovigintillion
+    'Nov', // Novemvigintillion
+    'Tg',  // Trigintillion
+    'Utg', // Untrigintillion
+    'Dtg', // Duotrigintillion
+    'Ttg', // Tretrigintillion
+    'Qatg',// Quattuortrigintillion
+    'Qitg',// Quintrigintillion
+    'Sxtg',// Sextrigintillion
+    'Sptg',// Septentrigintillion
+    'Octg',// Octotrigintillion
+    'Notg',// Novemtrigintillion
+    'Qag', // Quadragintillion
+    // ...add more as needed
+  ];
+  if (num < 1000) return num;
+  const tier = Math.floor(Math.log10(num) / 3);
+  if (tier >= suffixes.length) return num.toExponential(2);
+  const suffix = suffixes[tier];
+  const scale = Math.pow(10, tier * 3);
+  let scaled = num / scale;
+  scaled = scaled.toFixed(2).replace(/\.00$/, '');
+  return scaled + suffix;
+}
 
     // --- Generator Cost Calculation (BigNumber) ---
     function getTotalCost(base, scale, owned, amount) {
