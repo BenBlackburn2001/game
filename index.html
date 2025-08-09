@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Generator Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -10,49 +11,49 @@
     <label for="purchase-multiplier">Purchase:</label>
     <select id="purchase-multiplier">
       <option value="1">1x</option>
-      <option value="2">2x</option>
       <option value="3">3x</option>
       <option value="5">5x</option>
       <option value="10">10x</option>
       <option value="20">20x</option>
       <option value="50">50x</option>
+      <option value="100">100x</option>
     </select>
   </div>
 
-  <h1>Generators Game</h1>
-  <div id="energy">Total Energy: 10</div>
-  <div id="eps">EPS: 0</div>
-  <div id="generators">Generators: 0</div>
+  <main>
+    <h1>Generators Game</h1>
+    <div id="energy">Total Energy: 10</div>
+    <div id="eps">EPS: 0</div>
+    <div id="generators">Generators: 0</div>
 
-  <div class="generator-row">
-    <span id="generatorsCoal">Coal Generators: 0</span>
-    <button id="generateCoal">Buy Coal Generator (Cost: 10)</button>
-  </div>
+    <section id="generators-section">
+      <div class="generator-row">
+        <span id="generatorsCoal" class="generator-label">Coal Generators: 0</span>
+        <button id="generateCoal" class="generator-btn">Buy Coal Generator (Cost: 10)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsIron" class="generator-label">Iron Generators: 0</span>
+        <button id="generateIron" class="generator-btn">Buy Iron Generator (Cost: 1k)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsGold" class="generator-label">Gold Generators: 0</span>
+        <button id="generateGold" class="generator-btn">Buy Gold Generator (Cost: 3k)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsRuby" class="generator-label">Ruby Generators: 0</span>
+        <button id="generateRuby" class="generator-btn">Buy Ruby Generator (Cost: 6k)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0</span>
+        <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
+      </div>
+    </section>
 
-  <div class="generator-row">
-    <span id="generatorsIron">Iron Generators: 0</span>
-    <button id="generateIron">Buy Iron Generator (Cost: 1000)</button>
-  </div>
+    <h2>Leaderboard</h2>
+    <ul id="leaderboard"></ul>
+  </main>
 
-  <div class="generator-row">
-    <span id="generatorsGold">Gold Generators: 0</span>
-    <button id="generateGold">Buy Gold Generator (Cost: 3000)</button>
-  </div>
-
-  <div class="generator-row">
-    <span id="generatorsRuby">Ruby Generators: 0</span>
-    <button id="generateRuby">Buy Ruby Generator (Cost: 6000)</button>
-  </div>
-
-  <div class="generator-row">
-    <span id="generatorsEmerald">Emerald Generators: 0</span>
-    <button id="generateEmerald">Buy Emerald Generator (Cost: 9000)</button>
-  </div>
-
-  <h2>Leaderboard</h2>
-  <ul id="leaderboard"></ul>
-
-  <!-- BigNumber.js CDN -->
+  <!-- BigNumber.js and Socket.io scripts here -->
   <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>

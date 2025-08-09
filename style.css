@@ -6,6 +6,12 @@ body {
   padding: 0;
 }
 
+main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 16px 64px 16px;
+}
+
 h1, h2 {
   color: #ffb300;
   text-shadow: 2px 2px 0 #333, 0 0 10px #ffb30044;
@@ -25,7 +31,7 @@ h1, h2 {
 }
 
 #purchase-multiplier-container {
-  position: fixed;         /* Changed from absolute to fixed */
+  position: fixed;
   top: 24px;
   right: 32px;
   background: #2d3238;
@@ -35,7 +41,7 @@ h1, h2 {
   box-shadow: 0 2px 8px #0006;
   display: flex;
   align-items: center;
-  z-index: 1000;           /* Increased z-index */
+  z-index: 1000;
   gap: 10px;
 }
 
@@ -63,34 +69,48 @@ h1, h2 {
   border-color: #ffb300;
 }
 
-#purchase-multiplier-container button {
+.generator-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0;
+}
+
+.generator-label {
+  color: #b0b0b0;
+  font-family: inherit;
+  font-weight: bold;
+  margin: 0 12px 0 0;
+  padding: 0 8px;
+  font-size: 1.1em;
+  vertical-align: middle;
+  min-width: 180px;
+}
+
+.generator-btn {
   background: linear-gradient(90deg, #444 0%, #888 100%);
   color: #fff;
   border: 2px solid #b0b0b0;
   border-radius: 6px;
   font-size: 1.1em;
   font-family: inherit;
-  padding: 8px 18px;
+  padding: 10px 28px;
   margin: 0 8px;
   cursor: pointer;
   box-shadow: 0 2px 8px #0008;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.1s, border-color 0.2s, color 0.2s;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-weight: bold;
+  outline: none;
+  display: inline-block;
 }
 
-#purchase-multiplier-container button:hover {
+.generator-btn:hover {
   background: linear-gradient(90deg, #666 0%, #aaa 100%);
   transform: translateY(-2px) scale(1.03);
   border-color: #ffb300;
   color: #ffb300;
-}
-
-#purchase-multiplier-container #generatorsIron {
-  color: #b0b0b0;
-  font-family: inherit;
-  font-weight: bold;
-  margin: 0 8px;
 }
 
 #leaderboard {
@@ -122,87 +142,4 @@ h1, h2 {
 ::-webkit-scrollbar-thumb {
   background: #444;
   border-radius: 5px;
-}
-
-button#generate,
-button#generateIron {
-  background: linear-gradient(90deg, #444 0%, #888 100%);
-  color: #fff;
-  border: 2px solid #b0b0b0;
-  border-radius: 6px;
-  font-size: 1.1em;
-  font-family: inherit;
-  padding: 10px 28px;
-  margin: 16px 8px 0 0;
-  cursor: pointer;
-  box-shadow: 0 2px 8px #0008;
-  transition: background 0.2s, transform 0.1s, border-color 0.2s, color 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: bold;
-  outline: none;
-  display: inline-block;
-}
-
-button#generate:hover,
-button#generateIron:hover {
-  background: linear-gradient(90deg, #666 0%, #aaa 100%);
-  transform: translateY(-2px) scale(1.03);
-  border-color: #ffb300;
-  color: #ffb300;
-}
-
-#generatorsIron {
-  color: #b0b0b0;
-  font-family: inherit;
-  font-weight: bold;
-  margin: 0 12px 0 0;
-  padding: 0 8px;
-  font-size: 1.1em;
-  vertical-align: middle;
-}
-
-#generatorsCoal {
-  color: #b0b0b0;
-  font-family: inherit;
-  font-weight: bold;
-  margin: 0 12px 0 0;
-  padding: 0 8px;
-  font-size: 1.1em;
-  vertical-align: middle;
-}
-
-#generatorsGold {
-  color: #b0b0b0;
-  font-family: inherit;
-  font-weight: bold;
-  margin: 0 12px 0 0;
-  padding: 0 8px;
-  font-size: 1.1em;
-  vertical-align: middle;
-}
-#generatorsRuby {
-  color: #b0b0b0;
-  font-family: inherit;
-  font-weight: bold;
-  margin: 0 12px 0 0;
-  padding: 0 8px;
-  font-size: 1.1em;
-  vertical-align: middle;
-}
-#generatorsEmerald {
-  color: #b0b0b0;
-  font-family: inherit;
-  font-weight: bold;
-  margin: 0 12px 0 0;
-  padding: 0 8px;
-  font-size: 1.1em;
-  vertical-align: middle;
-}
-
-.generator-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 12px 0;
 }
