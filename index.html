@@ -20,10 +20,10 @@
     </select>
   </div>
   <div>
-  <input id="username" placeholder="Enter username" />
-  <button id="saveBtn">Save Game</button>
-  <button id="loadBtn">Load Game</button>
-</div>
+    <input id="username" placeholder="Enter username" />
+    <button id="saveBtn">Save Game</button>
+    <button id="loadBtn">Load Game</button>
+  </div>
 
   <main>
     <h1>Generators Game</h1>
@@ -66,120 +66,64 @@
     let generatorsGold = new BigNumber(0);
     let generatorsRuby = new BigNumber(0);  
     let generatorsEmerald = new BigNumber(0);
-
-    // --- Generator Config (with scaling) ---
-    let multiplier = 1;
-    const generatorConfig = {
-      coal: {
-        baseCost: new BigNumber(10),
-        costScale: new BigNumber(1),
-        power: 1,
-        owned: () => generatorsCoal,
-        setOwned: v => generatorsCoal = v,
-        label: 'Coal Generators',
-        button: 'generateCoal',
-        span: 'generatorsCoal'
-      },
-      iron: {
-        baseCost: new BigNumber(1000),
-        costScale: new BigNumber(1),
-        power: 2,
-        owned: () => generatorsIron,
-        setOwned: v => generatorsIron = v,
-        label: 'Iron Generators',
-        button: 'generateIron',
-        span: 'generatorsIron'
-      },
-      gold: {
-        baseCost: new BigNumber(3000),
-        costScale: new BigNumber(1),
-        power: 3,
-        owned: () => generatorsGold,
-        setOwned: v => generatorsGold = v,
-        label: 'Gold Generators',
-        button: 'generateGold',
-        span: 'generatorsGold'
-      },
-      ruby: {
-        baseCost: new BigNumber(6000),
-        costScale: new BigNumber(1),
-        power: 4,
-        owned: () => generatorsRuby,
-        setOwned: v => generatorsRuby = v,
-        label: 'Ruby Generators',
-        button: 'generateRuby',
-        span: 'generatorsRuby'
-      },
-      emerald: {
-        baseCost: new BigNumber(9000),
-        costScale: new BigNumber(1),
-        power: 5,
-        owned: () => generatorsEmerald,
-        setOwned: v => generatorsEmerald = v,
-        label: 'Emerald Generators',
-        button: 'generateEmerald',
-        span: 'generatorsEmerald'
-      }
-    };
-
-
     let username = '';
 
-function saveGame() {
-  if (!username) {
-    alert('Enter your username before saving.');
-    return;
-  }
+    // --- Generator Config ---
+    let multiplier = 1;
+    const generatorConfig = {
+      coal: { baseCost: new BigNumber(10),   costScale: new BigNumber(1), power: 1, owned: () => generatorsCoal, setOwned: v => generatorsCoal = v, label: 'Coal Generators', button: 'generateCoal', span: 'generatorsCoal' },
+      iron: { baseCost: new BigNumber(1000), costScale: new BigNumber(1), power: 2, owned: () => generatorsIron, setOwned: v => generatorsIron = v, label: 'Iron Generators', button: 'generateIron', span: 'generatorsIron' },
+      gold: { baseCost: new BigNumber(3000), costScale: new BigNumber(1), power: 3, owned: () => generatorsGold, setOwned: v => generatorsGold = v, label: 'Gold Generators', button: 'generateGold', span: 'generatorsGold' },
+      ruby: { baseCost: new BigNumber(6000), costScale: new BigNumber(1), power: 4, owned: () => generatorsRuby, setOwned: v => generatorsRuby = v, label: 'Ruby Generators', button: 'generateRuby', span: 'generatorsRuby' },
+      emerald: { baseCost: new BigNumber(9000), costScale: new BigNumber(1), power: 5, owned: () => generatorsEmerald, setOwned: v => generatorsEmerald = v, label: 'Emerald Generators', button: 'generateEmerald', span: 'generatorsEmerald' }
+    };
 
-  const gameData = {
-    energy: energy.toString(),
-    eps: eps.toString(),
-    generators: generators.toString(),
-    generatorsCoal: generatorsCoal.toString(),
-    generatorsIron: generatorsIron.toString(),
-    generatorsGold: generatorsGold.toString(),
-    generatorsRuby: generatorsRuby.toString(),
-    generatorsEmerald: generatorsEmerald.toString()
-  };
+    // --- Save & Load ---
+    function saveGame() {
+      username = document.getElementById('username').value.trim();
+      if (!username) { alert('Enter your username before saving.'); return; }
+      
+      const gameData = {
+        energy: energy.toString(),
+        eps: eps.toString(),
+        generators: generators.toString(),
+        generatorsCoal: generatorsCoal.toString(),
+        generatorsIron: generatorsIron.toString(),
+        generatorsGold: generatorsGold.toString(),
+        generatorsRuby: generatorsRuby.toString(),
+        generatorsEmerald: generatorsEmerald.toString()
+      };
+      localStorage.setItem(username, JSON.stringify(gameData));
+      localStorage.setItem('lastUsername', username);
+      alert('Game saved locally!');
+    }
 
-  localStorage.setItem(username, JSON.stringify(gameData));
-  alert('Game saved locally!');
-}
-
-function loadGame() {
-  username = document.getElementById('username').value.trim();
-  if (!username) {
-    alert('Enter a username first.');
-    return;
-  }
-
-  const savedData = localStorage.getItem(username);
-  if (savedData) {
-    const data = JSON.parse(savedData);
-    energy = new BigNumber(data.energy);
-    eps = new BigNumber(data.eps);
-    generators = new BigNumber(data.generators);
-    generatorsCoal = new BigNumber(data.generatorsCoal);
-    generatorsIron = new BigNumber(data.generatorsIron);
-    generatorsGold = new BigNumber(data.generatorsGold);
-    generatorsRuby = new BigNumber(data.generatorsRuby);
-    generatorsEmerald = new BigNumber(data.generatorsEmerald);
-    updateAllUI();
-    alert('Game loaded!');
-  } else {
-    alert('No save found for this username.');
-  }
-}
+    function loadGame() {
+      username = document.getElementById('username').value.trim();
+      if (!username) { alert('Enter a username first.'); return; }
+      
+      const savedData = localStorage.getItem(username);
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        energy = new BigNumber(data.energy);
+        eps = new BigNumber(data.eps);
+        generators = new BigNumber(data.generators);
+        generatorsCoal = new BigNumber(data.generatorsCoal);
+        generatorsIron = new BigNumber(data.generatorsIron);
+        generatorsGold = new BigNumber(data.generatorsGold);
+        generatorsRuby = new BigNumber(data.generatorsRuby);
+        generatorsEmerald = new BigNumber(data.generatorsEmerald);
+        updateAllUI();
+        alert('Game loaded!');
+      } else {
+        alert('No save found for this username.');
+      }
+    }
 
     // --- Number Formatting ---
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
-      const suffixes = [
-        '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
-        'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
-        'Vg', 'Uv', 'Dv', 'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ocv', 'Nov', 'Tg',
-        'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg', 'Qag'
-      ];
+      const suffixes = ['', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
       if (num.isLessThan(1000)) return num.toFixed(2).replace(/\.00$/, '');
       const exponent = num.e;
       const tier = Math.floor(exponent / 3);
@@ -188,11 +132,9 @@ function loadGame() {
       return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
     }
 
-    // --- Lag-Free Scaling Cost Calculation ---
+    // --- Cost Calculation ---
     function getTotalCost(base, scale, owned, amount) {
-      if (scale.eq(1)) {
-        return base.times(amount);
-      }
+      if (scale.eq(1)) return base.times(amount);
       const scalePowOwned = scale.pow(owned);
       const scalePowAmount = scale.pow(amount);
       const numerator = scalePowAmount.minus(1);
@@ -200,7 +142,7 @@ function loadGame() {
       return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
     }
 
-    // --- UI Update Functions (batched & disables buttons if unaffordable) ---
+    // --- UI Update ---
     function updateAllUI() {
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`;
@@ -216,25 +158,7 @@ function loadGame() {
       }
     }
 
-    // --- Purchase Multiplier Change ---
-    document.getElementById('purchase-multiplier').onchange = function() {
-      multiplier = parseInt(this.value, 10);
-      updateAllUI();
-    };
-
-    // --- Debounce Utility ---
-    function debounce(fn, delay) {
-      let lastCall = 0;
-      return function(...args) {
-        const now = Date.now();
-        if (now - lastCall > delay) {
-          lastCall = now;
-          fn.apply(this, args);
-        }
-      };
-    }
-
-    // --- Generic Purchase Handler ---
+    // --- Buy Generators ---
     function purchaseGenerator(key) {
       const gen = generatorConfig[key];
       const totalCost = getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier);
@@ -247,31 +171,39 @@ function loadGame() {
       }
     }
 
-    // --- Attach Debounced Handlers Once ---
+    // --- Hook Buttons ---
+    document.getElementById('purchase-multiplier').onchange = function() {
+      multiplier = parseInt(this.value, 10);
+      updateAllUI();
+    };
     for (const key in generatorConfig) {
-      document.getElementById(generatorConfig[key].button).onclick = debounce(() => purchaseGenerator(key), 50);
+      document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
     }
-
     document.getElementById('saveBtn').onclick = saveGame;
     document.getElementById('loadBtn').onclick = loadGame;
 
-    // --- Initial UI Update ---
-    updateAllUI();
+    // --- Auto-load last username ---
+    window.onload = function() {
+      const lastUser = localStorage.getItem('lastUsername');
+      if (lastUser) {
+        document.getElementById('username').value = lastUser;
+        username = lastUser;
+        loadGame();
+      }
+    };
 
-    // --- Energy Generation Interval (batched) ---
+    // --- Game Loop ---
     setInterval(() => {
       let totalAdd = new BigNumber(0);
       for (const key in generatorConfig) {
-        const gen = generatorConfig[key];
-        totalAdd = totalAdd.plus(gen.owned().times(gen.power));
+        totalAdd = totalAdd.plus(generatorConfig[key].owned().times(generatorConfig[key].power));
       }
       energy = energy.plus(totalAdd);
-      document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       updateAllUI();
     }, 1000);
 
-
-    
+    // --- Initial UI ---
+    updateAllUI();
   </script>
 </body>
 </html>
