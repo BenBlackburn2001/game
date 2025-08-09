@@ -71,7 +71,6 @@
     const generatorConfig = {
       coal: {
         baseCost: new BigNumber(10),
-        costScale: new BigNumber(1),
         power: 1,
         owned: () => generatorsCoal,
         setOwned: v => generatorsCoal = v,
@@ -81,7 +80,6 @@
       },
       iron: {
         baseCost: new BigNumber(1000),
-        costScale: new BigNumber(1),
         power: 2,
         owned: () => generatorsIron,
         setOwned: v => generatorsIron = v,
@@ -91,7 +89,6 @@
       },
       gold: {
         baseCost: new BigNumber(3000),
-        costScale: new BigNumber(1),
         power: 3,
         owned: () => generatorsGold,
         setOwned: v => generatorsGold = v,
@@ -101,7 +98,6 @@
       },
       ruby: {
         baseCost: new BigNumber(6000),
-        costScale: new BigNumber(1),
         power: 4,
         owned: () => generatorsRuby,
         setOwned: v => generatorsRuby = v,
@@ -111,7 +107,6 @@
       },
       emerald: {
         baseCost: new BigNumber(9000),
-        costScale: new BigNumber(1),
         power: 5,
         owned: () => generatorsEmerald,
         setOwned: v => generatorsEmerald = v,
@@ -138,16 +133,10 @@
       return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
     }
 
-    // --- Geometric Series Cost Calculation ---
-    function getTotalCost(base, scale, owned, amount) {
-      if (amount === 1) return base.times(scale.pow(owned));
-      const scalePowOwned = scale.pow(owned);
-      const scalePowAmount = scale.pow(amount);
-      const numerator = scalePowAmount.minus(1);
-      const denominator = scale.minus(1);
-      return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
+    // --- Cost Calculation (no scaling) ---
+    function getTotalCost(base, amount) {
+      return base.times(amount);
     }
-    
 
     // --- UI Update Functions (batched) ---
     function updateAllUI() {
@@ -160,7 +149,7 @@
         const gen = generatorConfig[key];
         document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(gen.owned())}`;
         document.getElementById(gen.button).textContent =
-          `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier))})`;
+          `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(getTotalCost(gen.baseCost, multiplier))})`;
       }
     }
 
@@ -173,7 +162,7 @@
     // --- Generic Purchase Handler ---
     function purchaseGenerator(key) {
       const gen = generatorConfig[key];
-      const totalCost = getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier);
+      const totalCost = getTotalCost(gen.baseCost, multiplier);
       if (energy.gte(totalCost)) {
         energy = energy.minus(totalCost);
         eps = eps.plus(new BigNumber(gen.power).times(multiplier));
