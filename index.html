@@ -11,6 +11,7 @@
     <label for="purchase-multiplier">Purchase:</label>
     <select id="purchase-multiplier">
       <option value="1">1x</option>
+      <option value="2">2x</option>
       <option value="3">3x</option>
       <option value="5">5x</option>
       <option value="10">10x</option>
@@ -229,16 +230,22 @@
       }
     };
 
-    // --- Energy Generation Interval ---
-    setInterval(() => {
-      // Each generator type adds its own energy per second
-      energy = energy.plus(generatorsCoal.times(generatorPower.coal));
-      energy = energy.plus(generatorsIron.times(generatorPower.iron));
-      energy = energy.plus(generatorsGold.times(generatorPower.gold));
-      energy = energy.plus(generatorsRuby.times(generatorPower.ruby));
-      energy = energy.plus(generatorsEmerald.times(generatorPower.emerald));
-      document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
-    }, 1000);
+let lastEnergy = energy;
+
+setInterval(() => {
+  // Each generator type adds its own energy per second
+  energy = energy.plus(generatorsCoal.times(generatorPower.coal));
+  energy = energy.plus(generatorsIron.times(generatorPower.iron));
+  energy = energy.plus(generatorsGold.times(generatorPower.gold));
+  energy = energy.plus(generatorsRuby.times(generatorPower.ruby));
+  energy = energy.plus(generatorsEmerald.times(generatorPower.emerald));
+
+  // Only update DOM if energy changed
+  if (!energy.eq(lastEnergy)) {
+    document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+    lastEnergy = energy;
+  }
+}, 1000);
 
     // --- Leaderboard Update ---
     socket.on('leaderboard', (data) => {
