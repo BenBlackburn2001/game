@@ -48,13 +48,9 @@
         <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
       </div>
     </section>
-
-    <h2>Leaderboard</h2>
-    <ul id="leaderboard"></ul>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     // --- Game State ---
     let energy = new BigNumber(1000000);
@@ -71,7 +67,7 @@
     const generatorConfig = {
       coal: {
         baseCost: new BigNumber(10),
-        costScale: new BigNumber(1.00015), // Example: 15% increase per purchase
+        costScale: new BigNumber(1.15),
         power: 1,
         owned: () => generatorsCoal,
         setOwned: v => generatorsCoal = v,
@@ -121,18 +117,6 @@
       }
     };
 
-
-  function debounce(fn, delay) {
-    let lastCall = 0;
-    return function(...args) {
-      const now = Date.now();
-      if (now - lastCall > delay) {
-        lastCall = now;
-        fn.apply(this, args);
-    }
-  };
-}
-
     // --- Number Formatting ---
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
@@ -162,18 +146,19 @@
       return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
     }
 
-    // --- UI Update Functions (batched) ---
+    // --- UI Update Functions (batched & disables buttons if unaffordable) ---
     function updateAllUI() {
-      // Stats
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`;
       document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`;
-      // Generators
       for (const key in generatorConfig) {
         const gen = generatorConfig[key];
+        const cost = getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier);
         document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(gen.owned())}`;
-        document.getElementById(gen.button).textContent =
-          `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier))})`;
+        const btn = document.getElementById(gen.button);
+        btn.textContent = `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(cost)})`;
+        btn.disabled = !energy.gte(cost);
+        btn.classList.toggle('disabled', btn.disabled);
       }
     }
 
@@ -182,6 +167,18 @@
       multiplier = parseInt(this.value, 10);
       updateAllUI();
     };
+
+    // --- Debounce Utility ---
+    function debounce(fn, delay) {
+      let lastCall = 0;
+      return function(...args) {
+        const now = Date.now();
+        if (now - lastCall > delay) {
+          lastCall = now;
+          fn.apply(this, args);
+        }
+      };
+    }
 
     // --- Generic Purchase Handler ---
     function purchaseGenerator(key) {
@@ -193,15 +190,13 @@
         gen.setOwned(gen.owned().plus(multiplier));
         generators = generators.plus(multiplier);
         updateAllUI();
-      } else {
-        alert('Not enough energy to buy generators!');
       }
     }
 
-    // --- Attach Handlers Once ---
+    // --- Attach Debounced Handlers Once ---
     for (const key in generatorConfig) {
-  document.getElementById(generatorConfig[key].button).onclick = debounce(() => purchaseGenerator(key), 50);
-}
+      document.getElementById(generatorConfig[key].button).onclick = debounce(() => purchaseGenerator(key), 50);
+    }
 
     // --- Initial UI Update ---
     updateAllUI();
@@ -215,19 +210,8 @@
       }
       energy = energy.plus(totalAdd);
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+      updateAllUI();
     }, 1000);
-
-    // --- Leaderboard Update ---
-    const socket = io('http://localhost:3000');
-    socket.on('leaderboard', (data) => {
-      const list = document.getElementById('leaderboard');
-      list.innerHTML = '';
-      data.forEach(player => {
-        const li = document.createElement('li');
-        li.textContent = `${player.email}: ${player.eps} EPS`;
-        list.appendChild(li);
-      });
-    });
   </script>
 </body>
 </html>
