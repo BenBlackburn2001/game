@@ -48,9 +48,16 @@
     const coalBaseCost = 10;
     const ironBaseCost = 1000;
 
+    function formatNumber(num) {
+      if (num >= 1e9) return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'b';
+      if (num >= 1e6) return (num / 1e6).toFixed(2).replace(/\.00$/, '') + 'm';
+      if (num >= 1e3) return (num / 1e3).toFixed(2).replace(/\.00$/, '') + 'k';
+    return num;
+}
+
     function updateButtonCosts() {
-      document.getElementById('generate').textContent = `Buy Coal Generator (Cost: ${coalBaseCost * multiplier})`;
-      document.getElementById('generateIron').textContent = `Buy Iron Generator (Cost: ${ironBaseCost * multiplier})`;
+      document.getElementById('generate').textContent = `Buy Coal Generator (Cost: ${formatNumber(coalBaseCost * multiplier)})`;
+      document.getElementById('generateIron').textContent = `Buy Iron Generator (Cost: ${formatNumber(ironBaseCost * multiplier)})`;
     }
 
     document.getElementById('purchase-multiplier').onchange = function() {
@@ -59,45 +66,45 @@
     };
     updateButtonCosts();
 
-    document.getElementById('generate').onclick = () => {
-      const totalCost = coalBaseCost * multiplier;
-      if (energy >= totalCost) {
-        energy -= totalCost;
-        eps += 1 * multiplier;
-        generators += multiplier;
-        generatorsCoal += multiplier;
-        document.getElementById('eps').textContent = `EPS: ${eps}`; 
-        document.getElementById('generators').textContent = `Generators: ${generators}`; 
-        document.getElementById('generatorsCoal').textContent = `Coal Generators: ${generatorsCoal}`;
-        document.getElementById('energy').textContent = `Total Energy: ${energy}`;
-      } else {
-        alert('Not enough energy to buy generators!');
-      }
-    };
+document.getElementById('generate').onclick = () => {
+  const totalCost = coalBaseCost * multiplier;
+  if (energy >= totalCost) {
+    energy -= totalCost;
+    eps += 1 * multiplier;
+    generators += multiplier;
+    generatorsCoal += multiplier;
+    document.getElementById('eps').textContent = `EPS: ${eps}`; 
+    document.getElementById('generators').textContent = `Generators: ${generators}`; 
+    document.getElementById('generatorsCoal').textContent = `Coal Generators: ${generatorsCoal}`;
+    document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+  } else {
+    alert('Not enough energy to buy generators!');
+  }
+};
 
-    document.getElementById('generateIron').onclick = () => {
-      const totalCost = ironBaseCost * multiplier;
-      if (energy >= totalCost) {
-        energy -= totalCost;
-        eps += 2 * multiplier;
-        generatorsIron += multiplier;
-        generators += multiplier;
-        document.getElementById('eps').textContent = `EPS: ${eps}`; 
-        document.getElementById('generatorsIron').textContent = `Iron Generators: ${generatorsIron}`;
-        document.getElementById('generators').textContent = `Generators: ${generators}`;  
-        document.getElementById('energy').textContent = `Total Energy: ${energy}`;
-      } else {
-        alert('Not enough energy to buy generators!');
-      }
-    };
+document.getElementById('generateIron').onclick = () => {
+  const totalCost = ironBaseCost * multiplier;
+  if (energy >= totalCost) {
+    energy -= totalCost;
+    eps += 2 * multiplier;
+    generatorsIron += multiplier;
+    generators += multiplier;
+    document.getElementById('eps').textContent = `EPS: ${eps}`; 
+    document.getElementById('generatorsIron').textContent = `Iron Generators: ${generatorsIron}`;
+    document.getElementById('generators').textContent = `Generators: ${generators}`;  
+    document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+  } else {
+    alert('Not enough energy to buy generators!');
+  }
+};
 
-    setInterval(() => {
-      if (generators > 0 || generatorsIron > 0) {
-        energy += generators * 1;
-        energy += generatorsIron * 2;
-        document.getElementById('energy').textContent = `Total Energy: ${energy}`;
-      }
-    }, 1000);
+setInterval(() => {
+  if (generatorsCoal > 0 || generatorsIron > 0) {
+    energy += generatorsCoal * 1;
+    energy += generatorsIron * 2;
+    document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+  }
+}, 1000);
 
     socket.on('leaderboard', (data) => {
       const list = document.getElementById('leaderboard');
