@@ -19,6 +19,11 @@
       <option value="100">100x</option>
     </select>
   </div>
+  <div>
+  <input id="username" placeholder="Enter username" />
+  <button id="saveBtn">Save Game</button>
+  <button id="loadBtn">Load Game</button>
+</div>
 
   <main>
     <h1>Generators Game</h1>
@@ -117,6 +122,55 @@
       }
     };
 
+
+    let username = '';
+
+function saveGame() {
+  if (!username) {
+    alert('Enter your username before saving.');
+    return;
+  }
+
+  const gameData = {
+    energy: energy.toString(),
+    eps: eps.toString(),
+    generators: generators.toString(),
+    generatorsCoal: generatorsCoal.toString(),
+    generatorsIron: generatorsIron.toString(),
+    generatorsGold: generatorsGold.toString(),
+    generatorsRuby: generatorsRuby.toString(),
+    generatorsEmerald: generatorsEmerald.toString()
+  };
+
+  localStorage.setItem(username, JSON.stringify(gameData));
+  alert('Game saved locally!');
+}
+
+function loadGame() {
+  username = document.getElementById('username').value.trim();
+  if (!username) {
+    alert('Enter a username first.');
+    return;
+  }
+
+  const savedData = localStorage.getItem(username);
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    energy = new BigNumber(data.energy);
+    eps = new BigNumber(data.eps);
+    generators = new BigNumber(data.generators);
+    generatorsCoal = new BigNumber(data.generatorsCoal);
+    generatorsIron = new BigNumber(data.generatorsIron);
+    generatorsGold = new BigNumber(data.generatorsGold);
+    generatorsRuby = new BigNumber(data.generatorsRuby);
+    generatorsEmerald = new BigNumber(data.generatorsEmerald);
+    updateAllUI();
+    alert('Game loaded!');
+  } else {
+    alert('No save found for this username.');
+  }
+}
+
     // --- Number Formatting ---
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
@@ -198,6 +252,9 @@
       document.getElementById(generatorConfig[key].button).onclick = debounce(() => purchaseGenerator(key), 50);
     }
 
+    document.getElementById('saveBtn').onclick = saveGame;
+    document.getElementById('loadBtn').onclick = loadGame;
+
     // --- Initial UI Update ---
     updateAllUI();
 
@@ -212,6 +269,9 @@
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       updateAllUI();
     }, 1000);
+
+
+    
   </script>
 </body>
 </html>
