@@ -57,6 +57,8 @@
     let multiplier = 1;
     const coalBaseCost = 10;
     const ironBaseCost = 1000;
+    const coalCostScale = 1.15;
+    const ironCostScale = 1.15;
 
     function formatNumber(num) {
       if (num >= 1e9) return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'b';
@@ -65,19 +67,29 @@
     return num;
 }
 
-    function updateButtonCosts() {
-      document.getElementById('generate').textContent = `Buy Coal Generator (Cost: ${formatNumber(coalBaseCost * multiplier)})`;
-      document.getElementById('generateIron').textContent = `Buy Iron Generator (Cost: ${formatNumber(ironBaseCost * multiplier)})`;
-    }
+function getTotalCost(base, scale, owned, amount) {
+  let total = 0;
+  for (let i = 0; i < amount; i++) {
+    total += Math.floor(base * Math.pow(scale, owned + i));
+  }
+  return total;
+}
 
-    document.getElementById('purchase-multiplier').onchange = function() {
-      multiplier = parseInt(this.value, 10);
-      updateButtonCosts();
-    };
-    updateButtonCosts();
+function updateButtonCosts() {
+  const coalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
+  const ironCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
+  document.getElementById('generate').textContent = `Buy Coal Generator (Cost: ${formatNumber(coalCost)})`;
+  document.getElementById('generateIron').textContent = `Buy Iron Generator (Cost: ${formatNumber(ironCost)})`;
+}
+
+document.getElementById('purchase-multiplier').onchange = function() {
+  multiplier = parseInt(this.value, 10);
+  updateButtonCosts();
+};
+updateButtonCosts();
 
 document.getElementById('generate').onclick = () => {
-  const totalCost = coalBaseCost * multiplier;
+  const totalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
   if (energy >= totalCost) {
     energy -= totalCost;
     eps += 1 * multiplier;
@@ -87,13 +99,14 @@ document.getElementById('generate').onclick = () => {
     document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`; 
     document.getElementById('generatorsCoal').textContent = `Coal Generators: ${formatNumber(generatorsCoal)}`;
     document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+    updateButtonCosts();
   } else {
     alert('Not enough energy to buy generators!');
   }
 };
 
 document.getElementById('generateIron').onclick = () => {
-  const totalCost = ironBaseCost * multiplier;
+  const totalCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
   if (energy >= totalCost) {
     energy -= totalCost;
     eps += 2 * multiplier;
@@ -103,6 +116,7 @@ document.getElementById('generateIron').onclick = () => {
     document.getElementById('generatorsIron').textContent = `Iron Generators: ${formatNumber(generatorsIron)}`;
     document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`;  
     document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+    updateButtonCosts();
   } else {
     alert('Not enough energy to buy generators!');
   }
