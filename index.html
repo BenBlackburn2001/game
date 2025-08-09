@@ -25,9 +25,9 @@
   <div id="generators">Generators: 0</div>
 
   <span id="generatorsCoal">Coal Generators: 0</span>
-  <button id="generate">Buy Coal Generator (Cost: 5)</button>
+  <button id="generate">Buy Coal Generator (Cost: 10)</button>
   <span id="generatorsIron">Iron Generators: 0</span>
-  <button id="generateIron">Buy Iron Generator (Cost: 10)</button>
+  <button id="generateIron">Buy Iron Generator (Cost: 1000)</button>
 
  
 
@@ -45,8 +45,8 @@
 
     // Multiplier logic
     let multiplier = 1;
-    const coalBaseCost = 5;
-    const ironBaseCost = 10;
+    const coalBaseCost = 10;
+    const ironBaseCost = 1000;
 
     function updateButtonCosts() {
       document.getElementById('generate').textContent = `Buy Coal Generator (Cost: ${coalBaseCost * multiplier})`;
