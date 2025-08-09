@@ -15,7 +15,6 @@
       <option value="10">10x</option>
       <option value="20">20x</option>
       <option value="50">50x</option>
-
     </select>
   </div>
 
@@ -26,11 +25,23 @@
 
   <div class="generator-row">
     <span id="generatorsCoal">Coal Generators: 0</span>
-    <button id="generate">Buy Coal Generator (Cost: 10)</button>
+    <button id="generateCoal">Buy Coal Generator (Cost: 10)</button>
   </div>
   <div class="generator-row">
     <span id="generatorsIron">Iron Generators: 0</span>
     <button id="generateIron">Buy Iron Generator (Cost: 1000)</button>
+  </div>
+  <div class="generator-row">
+    <span id="generatorsGold">Gold Generators: 0</span>
+    <button id="generateGold">Buy Gold Generator (Cost: 3000)</button>
+  </div>
+  <div class="generator-row">
+    <span id="generatorsRuby">Ruby Generators: 0</span>
+    <button id="generateRuby">Buy Ruby Generator (Cost: 6000)</button>
+  </div>
+  <div class="generator-row">
+    <span id="generatorsEmerald">Emerald Generators: 0</span>
+    <button id="generateEmerald">Buy Emerald Generator (Cost: 9000)</button>
   </div>
 
   <h2>Leaderboard</h2>
@@ -46,55 +57,54 @@
     let generators = new BigNumber(0);
     let generatorsCoal = new BigNumber(0);
     let generatorsIron = new BigNumber(0);
+    let generatorsGold = new BigNumber(0);
+    let generatorsRuby = new BigNumber(0);  
+    let generatorsEmerald = new BigNumber(0);
 
     // --- Generator Cost and Scaling ---
     let multiplier = 1;
     const coalBaseCost = new BigNumber(10);
     const ironBaseCost = new BigNumber(1000);
+    const goldBaseCost = new BigNumber(3000);
+    const rubyBaseCost = new BigNumber(6000);
+    const emeraldBaseCost = new BigNumber(9000);
+
     const coalCostScale = new BigNumber(1.00015);
     const ironCostScale = new BigNumber(1.00025);
+    const goldCostScale = new BigNumber(1.00035);
+    const rubyCostScale = new BigNumber(1.00045); 
+    const emeraldCostScale = new BigNumber(1.00055);
+
+    // --- Generator Power (EPS per generator) ---
+    const generatorPower = {
+      coal: 1,
+      iron: 2,
+      gold: 3,
+      ruby: 4,
+      emerald: 5
+    };
 
     // --- Socket.io ---
     const socket = io('http://localhost:3000');
 
     // --- Number Formatting ---
-function formatNumber(num) {
-  if (num instanceof BigNumber) num = num.toNumber();
-  const suffixes = [
-    '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
-    'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
-    'Vg',  // Vigintillion
-    'Uv',  // Unvigintillion
-    'Dv',  // Duovigintillion
-    'Tv',  // Trevigintillion
-    'Qav', // Quattuorvigintillion
-    'Qiv', // Quinvigintillion
-    'Sxv', // Sexvigintillion
-    'Spv', // Septenvigintillion
-    'Ocv', // Octovigintillion
-    'Nov', // Novemvigintillion
-    'Tg',  // Trigintillion
-    'Utg', // Untrigintillion
-    'Dtg', // Duotrigintillion
-    'Ttg', // Tretrigintillion
-    'Qatg',// Quattuortrigintillion
-    'Qitg',// Quintrigintillion
-    'Sxtg',// Sextrigintillion
-    'Sptg',// Septentrigintillion
-    'Octg',// Octotrigintillion
-    'Notg',// Novemtrigintillion
-    'Qag', // Quadragintillion
-    // ...add more as needed
-  ];
-  if (num < 1000) return num;
-  const tier = Math.floor(Math.log10(num) / 3);
-  if (tier >= suffixes.length) return num.toExponential(2);
-  const suffix = suffixes[tier];
-  const scale = Math.pow(10, tier * 3);
-  let scaled = num / scale;
-  scaled = scaled.toFixed(2).replace(/\.00$/, '');
-  return scaled + suffix;
-}
+    function formatNumber(num) {
+      if (num instanceof BigNumber) num = num.toNumber();
+      const suffixes = [
+        '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
+        'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
+        'Vg', 'Uv', 'Dv', 'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ocv', 'Nov', 'Tg',
+        'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg', 'Qag'
+      ];
+      if (num < 1000) return num;
+      const tier = Math.floor(Math.log10(num) / 3);
+      if (tier >= suffixes.length) return num.toExponential(2);
+      const suffix = suffixes[tier];
+      const scale = Math.pow(10, tier * 3);
+      let scaled = num / scale;
+      scaled = scaled.toFixed(2).replace(/\.00$/, '');
+      return scaled + suffix;
+    }
 
     // --- Generator Cost Calculation (BigNumber) ---
     function getTotalCost(base, scale, owned, amount) {
@@ -108,20 +118,28 @@ function formatNumber(num) {
     }
 
     // --- UI Update Functions ---
-function updateButtonCosts() {
-  const coalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
-  const ironCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
-  document.getElementById('generate').textContent =
-    `Buy Coal Generator (Cost: ${formatNumber(coalCost)})`;
-  document.getElementById('generateIron').textContent =
-    `Buy Iron Generator (Cost: ${formatNumber(ironCost)})`;
-}
+    function updateButtonCosts() {
+      document.getElementById('generateCoal').textContent =
+        `Buy Coal Generator (Cost: ${formatNumber(getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier))})`;
+      document.getElementById('generateIron').textContent =
+        `Buy Iron Generator (Cost: ${formatNumber(getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier))})`;
+      document.getElementById('generateGold').textContent =
+        `Buy Gold Generator (Cost: ${formatNumber(getTotalCost(goldBaseCost, goldCostScale, generatorsGold, multiplier))})`;
+      document.getElementById('generateRuby').textContent =
+        `Buy Ruby Generator (Cost: ${formatNumber(getTotalCost(rubyBaseCost, rubyCostScale, generatorsRuby, multiplier))})`;
+      document.getElementById('generateEmerald').textContent =
+        `Buy Emerald Generator (Cost: ${formatNumber(getTotalCost(emeraldBaseCost, emeraldCostScale, generatorsEmerald, multiplier))})`;
+    }
+
     function updateStats() {
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`;
       document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`;
       document.getElementById('generatorsCoal').textContent = `Coal Generators: ${formatNumber(generatorsCoal)}`;
       document.getElementById('generatorsIron').textContent = `Iron Generators: ${formatNumber(generatorsIron)}`;
+      document.getElementById('generatorsGold').textContent = `Gold Generators: ${formatNumber(generatorsGold)}`;
+      document.getElementById('generatorsRuby').textContent = `Ruby Generators: ${formatNumber(generatorsRuby)}`;
+      document.getElementById('generatorsEmerald').textContent = `Emerald Generators: ${formatNumber(generatorsEmerald)}`;
     }
 
     // --- Purchase Multiplier Change ---
@@ -135,13 +153,13 @@ function updateButtonCosts() {
     updateStats();
 
     // --- Generator Purchase Handlers ---
-    document.getElementById('generate').onclick = () => {
+    document.getElementById('generateCoal').onclick = () => {
       const totalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
       if (energy.gte(totalCost)) {
         energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(1).times(multiplier));
-        generators = generators.plus(multiplier);
+        eps = eps.plus(new BigNumber(generatorPower.coal).times(multiplier));
         generatorsCoal = generatorsCoal.plus(multiplier);
+        generators = generators.plus(multiplier);
         updateStats();
         updateButtonCosts();
       } else {
@@ -153,8 +171,50 @@ function updateButtonCosts() {
       const totalCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
       if (energy.gte(totalCost)) {
         energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(2).times(multiplier));
+        eps = eps.plus(new BigNumber(generatorPower.iron).times(multiplier));
         generatorsIron = generatorsIron.plus(multiplier);
+        generators = generators.plus(multiplier);
+        updateStats();
+        updateButtonCosts();
+      } else {
+        alert('Not enough energy to buy generators!');
+      }
+    };
+
+    document.getElementById('generateGold').onclick = () => {
+      const totalCost = getTotalCost(goldBaseCost, goldCostScale, generatorsGold, multiplier);
+      if (energy.gte(totalCost)) {
+        energy = energy.minus(totalCost);
+        eps = eps.plus(new BigNumber(generatorPower.gold).times(multiplier));
+        generatorsGold = generatorsGold.plus(multiplier);
+        generators = generators.plus(multiplier);
+        updateStats();
+        updateButtonCosts();
+      } else {
+        alert('Not enough energy to buy generators!');
+      }
+    };
+
+    document.getElementById('generateRuby').onclick = () => {
+      const totalCost = getTotalCost(rubyBaseCost, rubyCostScale, generatorsRuby, multiplier);
+      if (energy.gte(totalCost)) {
+        energy = energy.minus(totalCost);
+        eps = eps.plus(new BigNumber(generatorPower.ruby).times(multiplier));
+        generatorsRuby = generatorsRuby.plus(multiplier);
+        generators = generators.plus(multiplier);
+        updateStats();
+        updateButtonCosts();
+      } else {
+        alert('Not enough energy to buy generators!');
+      }
+    };
+
+    document.getElementById('generateEmerald').onclick = () => {
+      const totalCost = getTotalCost(emeraldBaseCost, emeraldCostScale, generatorsEmerald, multiplier);
+      if (energy.gte(totalCost)) {
+        energy = energy.minus(totalCost);
+        eps = eps.plus(new BigNumber(generatorPower.emerald).times(multiplier));
+        generatorsEmerald = generatorsEmerald.plus(multiplier);
         generators = generators.plus(multiplier);
         updateStats();
         updateButtonCosts();
@@ -165,11 +225,13 @@ function updateButtonCosts() {
 
     // --- Energy Generation Interval ---
     setInterval(() => {
-      if (generatorsCoal.gt(0) || generatorsIron.gt(0)) {
-        energy = energy.plus(generatorsCoal.times(1));
-        energy = energy.plus(generatorsIron.times(2));
-        document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
-      }
+      // Each generator type adds its own energy per second
+      energy = energy.plus(generatorsCoal.times(generatorPower.coal));
+      energy = energy.plus(generatorsIron.times(generatorPower.iron));
+      energy = energy.plus(generatorsGold.times(generatorPower.gold));
+      energy = energy.plus(generatorsRuby.times(generatorPower.ruby));
+      energy = energy.plus(generatorsEmerald.times(generatorPower.emerald));
+      document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
     }, 1000);
 
     // --- Leaderboard Update ---
