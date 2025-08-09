@@ -121,6 +121,18 @@
       }
     };
 
+
+  function debounce(fn, delay) {
+    let lastCall = 0;
+    return function(...args) {
+      const now = Date.now();
+      if (now - lastCall > delay) {
+        lastCall = now;
+        fn.apply(this, args);
+    }
+  };
+}
+
     // --- Number Formatting ---
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
@@ -188,8 +200,8 @@
 
     // --- Attach Handlers Once ---
     for (const key in generatorConfig) {
-      document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
-    }
+  document.getElementById(generatorConfig[key].button).onclick = debounce(() => purchaseGenerator(key), 50);
+}
 
     // --- Initial UI Update ---
     updateAllUI();
