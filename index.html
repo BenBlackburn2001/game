@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generators Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   <div id="purchase-multiplier-container">
+    <label for="purchase-multiplier">Purchase:</label>
+    <select id="purchase-multiplier">
+      <option value="1">1x</option>
+      <option value="2">2x</option>
+      <option value="5">5x</option>
+      <option value="10">10x</option>
+      <option value="25">25x</option>
+      <option value="50">50x</option> 
+      <option value="100">100x</option>
+      <option value="250">250x</option>
+    </select>
+  </div>
+
+  <h1>Generators Game</h1>
+  <div id="energy">Total Energy: 10</div>
+  <div id="eps">EPS: 0</div>
+  <div id="generators">Generators: 0</div>
+
+  <span id="generatorsCoal">Coal Generators: 0</span>
+  <button id="generate">Buy Coal Generator (Cost: 5)</button>
+  <span id="generatorsIron">Iron Generators: 0</span>
+  <button id="generateIron">Buy Iron Generator (Cost: 10)</button>
+
+ 
+
+  <h2>Leaderboard</h2>
+  <ul id="leaderboard"></ul>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    let energy = 10;
+    let eps = 0;
+    let generators = 0;
+    let generatorsIron = 0;
+    let generatorsCoal = 0;
+    const socket = io('http://localhost:3000');
+
+    // Multiplier logic
+    let multiplier = 1;
+    const coalBaseCost = 5;
+    const ironBaseCost = 10;
+
+    function updateButtonCosts() {
+      document.getElementById('generate').textContent = `Buy Coal Generator (Cost: ${coalBaseCost * multiplier})`;
+      document.getElementById('generateIron').textContent = `Buy Iron Generator (Cost: ${ironBaseCost * multiplier})`;
+    }
+
+    document.getElementById('purchase-multiplier').onchange = function() {
+      multiplier = parseInt(this.value, 10);
+      updateButtonCosts();
+    };
+    updateButtonCosts();
+
+    document.getElementById('generate').onclick = () => {
+      const totalCost = coalBaseCost * multiplier;
+      if (energy >= totalCost) {
+        energy -= totalCost;
+        eps += 1 * multiplier;
+        generators += multiplier;
+        generatorsCoal += multiplier;
+        document.getElementById('eps').textContent = `EPS: ${eps}`; 
+        document.getElementById('generators').textContent = `Generators: ${generators}`; 
+        document.getElementById('generatorsCoal').textContent = `Coal Generators: ${generatorsCoal}`;
+        document.getElementById('energy').textContent = `Total Energy: ${energy}`;
+      } else {
+        alert('Not enough energy to buy generators!');
+      }
+    };
+
+    document.getElementById('generateIron').onclick = () => {
+      const totalCost = ironBaseCost * multiplier;
+      if (energy >= totalCost) {
+        energy -= totalCost;
+        eps += 2 * multiplier;
+        generatorsIron += multiplier;
+        generators += multiplier;
+        document.getElementById('eps').textContent = `EPS: ${eps}`; 
+        document.getElementById('generatorsIron').textContent = `Iron Generators: ${generatorsIron}`;
+        document.getElementById('generators').textContent = `Generators: ${generators}`;  
+        document.getElementById('energy').textContent = `Total Energy: ${energy}`;
+      } else {
+        alert('Not enough energy to buy generators!');
+      }
+    };
+
+    setInterval(() => {
+      if (generators > 0 || generatorsIron > 0) {
+        energy += generators * 1;
+        energy += generatorsIron * 2;
+        document.getElementById('energy').textContent = `Total Energy: ${energy}`;
+      }
+    }, 1000);
+
+    socket.on('leaderboard', (data) => {
+      const list = document.getElementById('leaderboard');
+      list.innerHTML = '';
+      data.forEach(player => {
+        const li = document.createElement('li');
+        li.textContent = `${player.email}: ${player.eps} EPS`;
+        list.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
