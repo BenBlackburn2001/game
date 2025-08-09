@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Purchase Multiplier Dropdown -->
   <div id="purchase-multiplier-container">
     <label for="purchase-multiplier">Purchase:</label>
     <select id="purchase-multiplier">
@@ -54,7 +53,6 @@
     <ul id="leaderboard"></ul>
   </main>
 
-  <!-- BigNumber.js and Socket.io scripts here -->
   <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
@@ -68,186 +66,145 @@
     let generatorsRuby = new BigNumber(0);  
     let generatorsEmerald = new BigNumber(0);
 
-    // --- Generator Cost and Scaling ---
+    // --- Generator Config ---
     let multiplier = 1;
-    const coalBaseCost = new BigNumber(10);
-    const ironBaseCost = new BigNumber(1000);
-    const goldBaseCost = new BigNumber(3000);
-    const rubyBaseCost = new BigNumber(6000);
-    const emeraldBaseCost = new BigNumber(9000);
-
-    const coalCostScale = new BigNumber(1.00015);
-    const ironCostScale = new BigNumber(1.00025);
-    const goldCostScale = new BigNumber(1.00035);
-    const rubyCostScale = new BigNumber(1.00045); 
-    const emeraldCostScale = new BigNumber(1.00055);
-
-    // --- Generator Power (EPS per generator) ---
-    const generatorPower = {
-      coal: 1,
-      iron: 2,
-      gold: 3,
-      ruby: 4,
-      emerald: 5
+    const generatorConfig = {
+      coal: {
+        baseCost: new BigNumber(10),
+        costScale: new BigNumber(1.00015),
+        power: 1,
+        owned: () => generatorsCoal,
+        setOwned: v => generatorsCoal = v,
+        label: 'Coal Generators',
+        button: 'generateCoal',
+        span: 'generatorsCoal'
+      },
+      iron: {
+        baseCost: new BigNumber(1000),
+        costScale: new BigNumber(1.00025),
+        power: 2,
+        owned: () => generatorsIron,
+        setOwned: v => generatorsIron = v,
+        label: 'Iron Generators',
+        button: 'generateIron',
+        span: 'generatorsIron'
+      },
+      gold: {
+        baseCost: new BigNumber(3000),
+        costScale: new BigNumber(1.00035),
+        power: 3,
+        owned: () => generatorsGold,
+        setOwned: v => generatorsGold = v,
+        label: 'Gold Generators',
+        button: 'generateGold',
+        span: 'generatorsGold'
+      },
+      ruby: {
+        baseCost: new BigNumber(6000),
+        costScale: new BigNumber(1.00045),
+        power: 4,
+        owned: () => generatorsRuby,
+        setOwned: v => generatorsRuby = v,
+        label: 'Ruby Generators',
+        button: 'generateRuby',
+        span: 'generatorsRuby'
+      },
+      emerald: {
+        baseCost: new BigNumber(9000),
+        costScale: new BigNumber(1.00055),
+        power: 5,
+        owned: () => generatorsEmerald,
+        setOwned: v => generatorsEmerald = v,
+        label: 'Emerald Generators',
+        button: 'generateEmerald',
+        span: 'generatorsEmerald'
+      }
     };
 
-    // --- Socket.io ---
-    const socket = io('http://localhost:3000');
-
+    // --- Number Formatting ---
     function formatNumber(num) {
-  // Use BigNumber throughout
-  if (!(num instanceof BigNumber)) num = new BigNumber(num);
-  const suffixes = [
-    '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
-    'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
-    'Vg', 'Uv', 'Dv', 'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ocv', 'Nov', 'Tg',
-    'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg', 'Qag'
-  ];
-  if (num.isLessThan(1000)) return num.toFixed(2).replace(/\.00$/, '');
-  const exponent = num.e;
-  const tier = Math.floor(exponent / 3);
-  if (tier >= suffixes.length) return num.toExponential(3);
-  const scaled = num.dividedBy(new BigNumber(10).pow(tier * 3));
-  return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
-}
-  
+      if (!(num instanceof BigNumber)) num = new BigNumber(num);
+      const suffixes = [
+        '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
+        'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
+        'Vg', 'Uv', 'Dv', 'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ocv', 'Nov', 'Tg',
+        'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg', 'Qag'
+      ];
+      if (num.isLessThan(1000)) return num.toFixed(2).replace(/\.00$/, '');
+      const exponent = num.e;
+      const tier = Math.floor(exponent / 3);
+      if (tier >= suffixes.length) return num.toExponential(3);
+      const scaled = num.dividedBy(new BigNumber(10).pow(tier * 3));
+      return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
+    }
+
+    // --- Geometric Series Cost Calculation ---
     function getTotalCost(base, scale, owned, amount) {
-      if (amount === 1) {
-    return base.times(scale.pow(owned));
-    }
-    // S = a * (r^n - 1) / (r - 1)
-    const scalePowOwned = scale.pow(owned);
-    const scalePowAmount = scale.pow(amount);
-    const numerator = scalePowAmount.minus(1);
-    const denominator = scale.minus(1);
-    return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
-  }
-
-
-    // --- UI Update Functions ---
-    function updateButtonCosts() {
-      document.getElementById('generateCoal').textContent =
-        `Buy Coal Generator (Cost: ${formatNumber(getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier))})`;
-      document.getElementById('generateIron').textContent =
-        `Buy Iron Generator (Cost: ${formatNumber(getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier))})`;
-      document.getElementById('generateGold').textContent =
-        `Buy Gold Generator (Cost: ${formatNumber(getTotalCost(goldBaseCost, goldCostScale, generatorsGold, multiplier))})`;
-      document.getElementById('generateRuby').textContent =
-        `Buy Ruby Generator (Cost: ${formatNumber(getTotalCost(rubyBaseCost, rubyCostScale, generatorsRuby, multiplier))})`;
-      document.getElementById('generateEmerald').textContent =
-        `Buy Emerald Generator (Cost: ${formatNumber(getTotalCost(emeraldBaseCost, emeraldCostScale, generatorsEmerald, multiplier))})`;
+      if (amount === 1) return base.times(scale.pow(owned));
+      const scalePowOwned = scale.pow(owned);
+      const scalePowAmount = scale.pow(amount);
+      const numerator = scalePowAmount.minus(1);
+      const denominator = scale.minus(1);
+      return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
     }
 
-    function updateStats() {
+    // --- UI Update Functions (batched) ---
+    function updateAllUI() {
+      // Stats
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`;
       document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`;
-      document.getElementById('generatorsCoal').textContent = `Coal Generators: ${formatNumber(generatorsCoal)}`;
-      document.getElementById('generatorsIron').textContent = `Iron Generators: ${formatNumber(generatorsIron)}`;
-      document.getElementById('generatorsGold').textContent = `Gold Generators: ${formatNumber(generatorsGold)}`;
-      document.getElementById('generatorsRuby').textContent = `Ruby Generators: ${formatNumber(generatorsRuby)}`;
-      document.getElementById('generatorsEmerald').textContent = `Emerald Generators: ${formatNumber(generatorsEmerald)}`;
+      // Generators
+      for (const key in generatorConfig) {
+        const gen = generatorConfig[key];
+        document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(gen.owned())}`;
+        document.getElementById(gen.button).textContent =
+          `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier))})`;
+      }
     }
 
     // --- Purchase Multiplier Change ---
     document.getElementById('purchase-multiplier').onchange = function() {
       multiplier = parseInt(this.value, 10);
-      updateButtonCosts();
+      updateAllUI();
     };
+
+    // --- Generic Purchase Handler ---
+    function purchaseGenerator(key) {
+      const gen = generatorConfig[key];
+      const totalCost = getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier);
+      if (energy.gte(totalCost)) {
+        energy = energy.minus(totalCost);
+        eps = eps.plus(new BigNumber(gen.power).times(multiplier));
+        gen.setOwned(gen.owned().plus(multiplier));
+        generators = generators.plus(multiplier);
+        updateAllUI();
+      } else {
+        alert('Not enough energy to buy generators!');
+      }
+    }
+
+    // --- Attach Handlers Once ---
+    for (const key in generatorConfig) {
+      document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
+    }
 
     // --- Initial UI Update ---
-    updateButtonCosts();
-    updateStats();
+    updateAllUI();
 
-    // --- Generator Purchase Handlers ---
-    document.getElementById('generateCoal').onclick = () => {
-      const totalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
-      if (energy.gte(totalCost)) {
-        energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(generatorPower.coal).times(multiplier));
-        generatorsCoal = generatorsCoal.plus(multiplier);
-        generators = generators.plus(multiplier);
-        updateStats();
-        updateButtonCosts();
-      } else {
-        alert('Not enough energy to buy generators!');
+    // --- Energy Generation Interval (batched) ---
+    setInterval(() => {
+      let totalAdd = new BigNumber(0);
+      for (const key in generatorConfig) {
+        const gen = generatorConfig[key];
+        totalAdd = totalAdd.plus(gen.owned().times(gen.power));
       }
-    };
-
-    document.getElementById('generateIron').onclick = () => {
-      const totalCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
-      if (energy.gte(totalCost)) {
-        energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(generatorPower.iron).times(multiplier));
-        generatorsIron = generatorsIron.plus(multiplier);
-        generators = generators.plus(multiplier);
-        updateStats();
-        updateButtonCosts();
-      } else {
-        alert('Not enough energy to buy generators!');
-      }
-    };
-
-    document.getElementById('generateGold').onclick = () => {
-      const totalCost = getTotalCost(goldBaseCost, goldCostScale, generatorsGold, multiplier);
-      if (energy.gte(totalCost)) {
-        energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(generatorPower.gold).times(multiplier));
-        generatorsGold = generatorsGold.plus(multiplier);
-        generators = generators.plus(multiplier);
-        updateStats();
-        updateButtonCosts();
-      } else {
-        alert('Not enough energy to buy generators!');
-      }
-    };
-
-    document.getElementById('generateRuby').onclick = () => {
-      const totalCost = getTotalCost(rubyBaseCost, rubyCostScale, generatorsRuby, multiplier);
-      if (energy.gte(totalCost)) {
-        energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(generatorPower.ruby).times(multiplier));
-        generatorsRuby = generatorsRuby.plus(multiplier);
-        generators = generators.plus(multiplier);
-        updateStats();
-        updateButtonCosts();
-      } else {
-        alert('Not enough energy to buy generators!');
-      }
-    };
-
-    document.getElementById('generateEmerald').onclick = () => {
-      const totalCost = getTotalCost(emeraldBaseCost, emeraldCostScale, generatorsEmerald, multiplier);
-      if (energy.gte(totalCost)) {
-        energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(generatorPower.emerald).times(multiplier));
-        generatorsEmerald = generatorsEmerald.plus(multiplier);
-        generators = generators.plus(multiplier);
-        updateStats();
-        updateButtonCosts();
-      } else {
-        alert('Not enough energy to buy generators!');
-      }
-    };
-
-let lastEnergy = energy;
-
-setInterval(() => {
-  // Each generator type adds its own energy per second
-  energy = energy.plus(generatorsCoal.times(generatorPower.coal));
-  energy = energy.plus(generatorsIron.times(generatorPower.iron));
-  energy = energy.plus(generatorsGold.times(generatorPower.gold));
-  energy = energy.plus(generatorsRuby.times(generatorPower.ruby));
-  energy = energy.plus(generatorsEmerald.times(generatorPower.emerald));
-
-  // Only update DOM if energy changed
-  if (!energy.eq(lastEnergy)) {
-    document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
-    lastEnergy = energy;
-  }
-}, 1000);
+      energy = energy.plus(totalAdd);
+      document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
+    }, 1000);
 
     // --- Leaderboard Update ---
+    const socket = io('http://localhost:3000');
     socket.on('leaderboard', (data) => {
       const list = document.getElementById('leaderboard');
       list.innerHTML = '';
