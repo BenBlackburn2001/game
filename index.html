@@ -112,17 +112,19 @@
       scaled = scaled.toFixed(2).replace(/\.00$/, '');
       return scaled + suffix;
     }
-
-    // --- Generator Cost Calculation (BigNumber) ---
+  
     function getTotalCost(base, scale, owned, amount) {
-      let total = new BigNumber(0);
-      for (let i = 0; i < amount; i++) {
-        let cost = base.times(scale.pow(owned.plus(i)));
-        if (!cost.isFinite() || !total.isFinite()) return new BigNumber(Infinity);
-        total = total.plus(cost.integerValue(BigNumber.ROUND_FLOOR));
-      }
-      return total;
+      if (amount === 1) {
+    return base.times(scale.pow(owned));
     }
+    // S = a * (r^n - 1) / (r - 1)
+    const scalePowOwned = scale.pow(owned);
+    const scalePowAmount = scale.pow(amount);
+    const numerator = scalePowAmount.minus(1);
+    const denominator = scale.minus(1);
+    return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
+  }
+
 
     // --- UI Update Functions ---
     function updateButtonCosts() {
