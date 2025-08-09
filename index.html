@@ -71,7 +71,7 @@
     const generatorConfig = {
       coal: {
         baseCost: new BigNumber(10),
-        costScale: new BigNumber(1.00015),
+        costScale: new BigNumber(1),
         power: 1,
         owned: () => generatorsCoal,
         setOwned: v => generatorsCoal = v,
@@ -81,7 +81,7 @@
       },
       iron: {
         baseCost: new BigNumber(1000),
-        costScale: new BigNumber(1.00025),
+        costScale: new BigNumber(1),
         power: 2,
         owned: () => generatorsIron,
         setOwned: v => generatorsIron = v,
@@ -91,7 +91,7 @@
       },
       gold: {
         baseCost: new BigNumber(3000),
-        costScale: new BigNumber(1.00035),
+        costScale: new BigNumber(1),
         power: 3,
         owned: () => generatorsGold,
         setOwned: v => generatorsGold = v,
@@ -101,7 +101,7 @@
       },
       ruby: {
         baseCost: new BigNumber(6000),
-        costScale: new BigNumber(1.00045),
+        costScale: new BigNumber(1),
         power: 4,
         owned: () => generatorsRuby,
         setOwned: v => generatorsRuby = v,
@@ -111,7 +111,7 @@
       },
       emerald: {
         baseCost: new BigNumber(9000),
-        costScale: new BigNumber(1.00055),
+        costScale: new BigNumber(1),
         power: 5,
         owned: () => generatorsEmerald,
         setOwned: v => generatorsEmerald = v,
