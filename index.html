@@ -94,24 +94,22 @@
     // --- Socket.io ---
     const socket = io('http://localhost:3000');
 
-    // --- Number Formatting ---
     function formatNumber(num) {
-      if (num instanceof BigNumber) num = num.toNumber();
-      const suffixes = [
-        '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
-        'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
-        'Vg', 'Uv', 'Dv', 'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ocv', 'Nov', 'Tg',
-        'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg', 'Qag'
-      ];
-      if (num < 1000) return num;
-      const tier = Math.floor(Math.log10(num) / 3);
-      if (tier >= suffixes.length) return num.toExponential(2);
-      const suffix = suffixes[tier];
-      const scale = Math.pow(10, tier * 3);
-      let scaled = num / scale;
-      scaled = scaled.toFixed(2).replace(/\.00$/, '');
-      return scaled + suffix;
-    }
+  // Use BigNumber throughout
+  if (!(num instanceof BigNumber)) num = new BigNumber(num);
+  const suffixes = [
+    '', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No',
+    'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid', 'Sxd', 'Spd', 'Ocd', 'Nod',
+    'Vg', 'Uv', 'Dv', 'Tv', 'Qav', 'Qiv', 'Sxv', 'Spv', 'Ocv', 'Nov', 'Tg',
+    'Utg', 'Dtg', 'Ttg', 'Qatg', 'Qitg', 'Sxtg', 'Sptg', 'Octg', 'Notg', 'Qag'
+  ];
+  if (num.isLessThan(1000)) return num.toFixed(2).replace(/\.00$/, '');
+  const exponent = num.e;
+  const tier = Math.floor(exponent / 3);
+  if (tier >= suffixes.length) return num.toExponential(3);
+  const scaled = num.dividedBy(new BigNumber(10).pow(tier * 3));
+  return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
+}
   
     function getTotalCost(base, scale, owned, amount) {
       if (amount === 1) {
