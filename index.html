@@ -94,15 +94,14 @@
     }
 
     // --- UI Update Functions ---
-    function updateButtonCosts() {
-      const coalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
-      const ironCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
-      document.getElementById('generate').textContent =
-        `Buy Coal Generator (Cost: ${coalCost.isFinite() ? formatNumber(coalCost) : 'Too expensive'})`;
-      document.getElementById('generateIron').textContent =
-        `Buy Iron Generator (Cost: ${ironCost.isFinite() ? formatNumber(ironCost) : 'Too expensive'})`;
-    }
-
+function updateButtonCosts() {
+  const coalCost = getTotalCost(coalBaseCost, coalCostScale, generatorsCoal, multiplier);
+  const ironCost = getTotalCost(ironBaseCost, ironCostScale, generatorsIron, multiplier);
+  document.getElementById('generate').textContent =
+    `Buy Coal Generator (Cost: ${formatNumber(coalCost)})`;
+  document.getElementById('generateIron').textContent =
+    `Buy Iron Generator (Cost: ${formatNumber(ironCost)})`;
+}
     function updateStats() {
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
       document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`;
