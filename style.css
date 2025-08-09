@@ -172,6 +172,34 @@ button#generateIron:hover {
   vertical-align: middle;
 }
 
+#generatorsGold {
+  color: #b0b0b0;
+  font-family: inherit;
+  font-weight: bold;
+  margin: 0 12px 0 0;
+  padding: 0 8px;
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+#generatorsRuby {
+  color: #b0b0b0;
+  font-family: inherit;
+  font-weight: bold;
+  margin: 0 12px 0 0;
+  padding: 0 8px;
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+#generatorsEmerald {
+  color: #b0b0b0;
+  font-family: inherit;
+  font-weight: bold;
+  margin: 0 12px 0 0;
+  padding: 0 8px;
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
 .generator-row {
   display: flex;
   align-items: center;
