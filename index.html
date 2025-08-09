@@ -73,9 +73,9 @@ document.getElementById('generate').onclick = () => {
     eps += 1 * multiplier;
     generators += multiplier;
     generatorsCoal += multiplier;
-    document.getElementById('eps').textContent = `EPS: ${eps}`; 
-    document.getElementById('generators').textContent = `Generators: ${generators}`; 
-    document.getElementById('generatorsCoal').textContent = `Coal Generators: ${generatorsCoal}`;
+    document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`; 
+    document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`; 
+    document.getElementById('generatorsCoal').textContent = `Coal Generators: ${formatNumber(generatorsCoal)}`;
     document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
   } else {
     alert('Not enough energy to buy generators!');
@@ -89,9 +89,9 @@ document.getElementById('generateIron').onclick = () => {
     eps += 2 * multiplier;
     generatorsIron += multiplier;
     generators += multiplier;
-    document.getElementById('eps').textContent = `EPS: ${eps}`; 
-    document.getElementById('generatorsIron').textContent = `Iron Generators: ${generatorsIron}`;
-    document.getElementById('generators').textContent = `Generators: ${generators}`;  
+    document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`; 
+    document.getElementById('generatorsIron').textContent = `Iron Generators: ${formatNumber(generatorsIron)}`;
+    document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`;  
     document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
   } else {
     alert('Not enough energy to buy generators!');
