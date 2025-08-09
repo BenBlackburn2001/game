@@ -139,14 +139,27 @@
     }
 
     // --- Geometric Series Cost Calculation ---
-    function getTotalCost(base, scale, owned, amount) {
-      if (amount === 1) return base.times(scale.pow(owned));
-      const scalePowOwned = scale.pow(owned);
-      const scalePowAmount = scale.pow(amount);
-      const numerator = scalePowAmount.minus(1);
-      const denominator = scale.minus(1);
-      return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
+    //function getTotalCost(base, scale, owned, amount) {
+   //   if (amount === 1) return base.times(scale.pow(owned));
+    //  const scalePowOwned = scale.pow(owned);
+    //  const scalePowAmount = scale.pow(amount);
+    //  const numerator = scalePowAmount.minus(1);
+    //  const denominator = scale.minus(1);
+    //  return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
     }
+
+  function getTotalCost(base, scale, owned, amount) {
+  if (scale.eq(1)) {
+    // No scaling: cost is just base * amount
+    return base.times(amount);
+  }
+  if (amount === 1) return base.times(scale.pow(owned));
+  const scalePowOwned = scale.pow(owned);
+  const scalePowAmount = scale.pow(amount);
+  const numerator = scalePowAmount.minus(1);
+  const denominator = scale.minus(1);
+  return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
+}
 
     // --- UI Update Functions (batched) ---
     function updateAllUI() {
