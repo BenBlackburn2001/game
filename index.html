@@ -121,6 +121,14 @@
         <button id="upgradeEmerald" class="upgrade-btn">Upgrade (Cost: 1k)</button>
         <button id="maxEmerald" class="max-btn">Max+ (Cost: 1k) [+10]</button>
       </div>
+      <!-- DIAMOND GENERATOR (Super expensive and powerful) -->
+      <div class="generator-row">
+        <span id="generatorsDiamond" class="generator-label">Diamond Generators: 0 / 1</span>
+        <button id="generateDiamond" class="generator-btn">Buy Diamond Generator (Cost: 1Qa)</button>
+        <button id="sellDiamond" class="sell-btn">Sell</button>
+        <button id="upgradeDiamond" class="upgrade-btn">Upgrade (Cost: 1Qa)</button>
+        <button id="maxDiamond" class="max-btn">Max+ (Cost: 1Qa) [+1]</button>
+      </div>
     </section>
   </main>
   <div id="toast-container"></div>
@@ -150,7 +158,8 @@
     generatorsGold: "0",
     generatorsRuby: "0",
     generatorsEmerald: "0",
-    generatorMax: { coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10 }
+    generatorsDiamond: "0",
+    generatorMax: { coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10, diamond: 1 }
   };
 
   let username = "";
@@ -163,7 +172,8 @@
     iron:    { level: 0, cost: new BigNumber(1000) },
     gold:    { level: 0, cost: new BigNumber(1000) },
     ruby:    { level: 0, cost: new BigNumber(1000) },
-    emerald: { level: 0, cost: new BigNumber(1000) }
+    emerald: { level: 0, cost: new BigNumber(1000) },
+    diamond: { level: 0, cost: new BigNumber("1e15") } // 1Qa
   };
 
   // --- Max Upgrade State ---
@@ -172,7 +182,8 @@
     iron:    { cost: new BigNumber(1000), increment: 100 },
     gold:    { cost: new BigNumber(1000), increment: 100 },
     ruby:    { cost: new BigNumber(1000), increment: 100 },
-    emerald: { cost: new BigNumber(1000), increment: 100 }
+    emerald: { cost: new BigNumber(1000), increment: 100 },
+    diamond: { cost: new BigNumber("1e15"), increment: 1 }
   };
 
   // --- Generator Config ---
@@ -181,7 +192,8 @@
     iron:    { baseCost: new BigNumber(1000),  power: () => 3 + generatorUpgrades.iron.level,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron, upgrade: "upgradeIron", sell: "sellIron", maxBtn: "maxIron" },
     gold:    { baseCost: new BigNumber(3000),  power: () => 8 + generatorUpgrades.gold.level,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold, upgrade: "upgradeGold", sell: "sellGold", maxBtn: "maxGold" },
     ruby:    { baseCost: new BigNumber(6000),  power: () => 20 + generatorUpgrades.ruby.level, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby, upgrade: "upgradeRuby", sell: "sellRuby", maxBtn: "maxRuby" },
-    emerald: { baseCost: new BigNumber(9000),  power: () => 50 + generatorUpgrades.emerald.level, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald", maxBtn: "maxEmerald" }
+    emerald: { baseCost: new BigNumber(9000),  power: () => 50 + generatorUpgrades.emerald.level, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald", maxBtn: "maxEmerald" },
+    diamond: { baseCost: new BigNumber("1e15"), power: () => 1e8 + generatorUpgrades.diamond.level * 1e8, key: "generatorsDiamond", label: "Diamond Generators", button: "generateDiamond", span: "generatorsDiamond", max: defaultGameData.generatorMax.diamond, upgrade: "upgradeDiamond", sell: "sellDiamond", maxBtn: "maxDiamond" }
   };
 
   // --- Helpers ---
@@ -393,11 +405,11 @@
       // Reset upgrades
       for (const key in generatorUpgrades) {
         generatorUpgrades[key].level = 0;
-        generatorUpgrades[key].cost = new BigNumber(1000);
+        generatorUpgrades[key].cost = key === "diamond" ? new BigNumber("1e15") : new BigNumber(1000);
       }
       // Reset max upgrades
       for (const key in generatorMaxUpgrades) {
-        generatorMaxUpgrades[key].cost = new BigNumber(1000);
+        generatorMaxUpgrades[key].cost = key === "diamond" ? new BigNumber("1e15") : new BigNumber(1000);
       }
       if (username) {
         localStorage.removeItem(username);
