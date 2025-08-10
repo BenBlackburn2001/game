@@ -18,12 +18,13 @@
       <option value="1000">1,000x</option>
     </select>
   </div>
-  <div>
-    <input id="username" placeholder="Enter username" />
-    <button id="saveBtn">Save Game</button>
-    <button id="loadBtn">Load Game</button>
-    <button id="resetBtn">Reset Game</button>
-  </div>
+<div class="menu-bar">
+    <button class="menu-button">Home</button>
+    <input type="text" id="username" placeholder="Username">
+    <button class="menu-button" onclick="saveGame()">Save Game</button>
+    <button class="menu-button" onclick="loadGame()">Load Game</button>
+    <button class="menu-button" onclick="resetGame()">Reset Game</button>
+</div>
 
   <main>
     <h1>Generators Game</h1>
