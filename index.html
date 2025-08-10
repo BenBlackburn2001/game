@@ -11,37 +11,11 @@
     <select id="purchase-multiplier">
       <option value="1">1x</option>
       <option value="2">2x</option>
-      <option value="3">3x</option>
       <option value="5">5x</option>
       <option value="10">10x</option>
-      <option value="20">20x</option>
       <option value="50">50x</option>
       <option value="100">100x</option>
-      <option value="1000">1000x</option>
-      <option value="10000">10000x</option>
-      <option value="100000">100000x</option>
-      <option value="1000000">1,000,000x</option>
-      <option value="10000000">10,000,000x</option>
-      <option value="100000000">100,000,000x</option>
-      <option value="1000000000">1,000,000,000x</option>
-      <option value="10000000000">10,000,000,000x</option>
-      <option value="100000000000">100,000,000,000x</option>
-      <option value="1000000000000">1,000,000,000,000x</option>
-      <option value="10000000000000">10,000,000,000,000x</option>
-      <option value="100000000000000">100,000,000,000,000x</option>
-      <option value="1000000000000000">1,000,000,000,000,000x</option>
-      <option value="10000000000000000">10,000,000,000,000,000x</option>
-      <option value="100000000000000000">100,000,000,000,000,000x</option>
-      <option value="1000000000000000000">1,000,000,000,000,000,000x</option>
-      <option value="10000000000000000000">10,000,000,000,000,000,000x</option>
-      <option value="100000000000000000000">100,000,000,000,000,000,000x</option>
-      <option value="1000000000000000000000">1,000,000,000,000,000,000,000x</option>
-      <option value="10000000000000000000000">10,000,000,000,000,000,000,000,000x</option>
-      <option value="100000000000000000000000">100,000,000,000,000,000,000,000x</option>
-      <option value="1000000000000000000000000">1,000,000,000,000,000,000,000,000x</option>
-      <option value="10000000000000000000000000">10,000,000,000,000,000,000,000,000x</option>
-      <option value="100000000000000000000000000">100,000,000,000,000,000,000,000,000x</option>
-      <option value="1000000000000000000000000000">1,000,000,000,000,000,000,000,000,000x</option>
+      <option value="1000">1,000x</option>
     </select>
   </div>
   <div>
@@ -83,70 +57,41 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
   <script>
-    // --- Game State ---
-    let energy = new BigNumber(10);
-    let eps = new BigNumber(0);
-    let generators = new BigNumber(0);
-    let generatorsCoal = new BigNumber(0);
-    let generatorsIron = new BigNumber(0);
-    let generatorsGold = new BigNumber(0);
-    let generatorsRuby = new BigNumber(0);  
-    let generatorsEmerald = new BigNumber(0);
-    let username = '';
+    // --- Default Game Data ---
+    const defaultGameData = {
+      energy: "10",
+      eps: "0",
+      generators: "0",
+      generatorsCoal: "0",
+      generatorsIron: "0",
+      generatorsGold: "0",
+      generatorsRuby: "0",
+      generatorsEmerald: "0"
+    };
+
+    let username = "";
+    let gameData = JSON.parse(JSON.stringify(defaultGameData));
 
     // --- Generator Config ---
     let multiplier = 1;
     const generatorConfig = {
-      coal: { baseCost: new BigNumber(10),   costScale: new BigNumber(1), power: 0.1, owned: () => generatorsCoal, setOwned: v => generatorsCoal = v, label: 'Coal Generators', button: 'generateCoal', span: 'generatorsCoal' },
-      iron: { baseCost: new BigNumber(1000), costScale: new BigNumber(1), power: 0.15, owned: () => generatorsIron, setOwned: v => generatorsIron = v, label: 'Iron Generators', button: 'generateIron', span: 'generatorsIron' },
-      gold: { baseCost: new BigNumber(3000), costScale: new BigNumber(1), power: 0.225, owned: () => generatorsGold, setOwned: v => generatorsGold = v, label: 'Gold Generators', button: 'generateGold', span: 'generatorsGold' },
-      ruby: { baseCost: new BigNumber(6000), costScale: new BigNumber(1), power: 0.338, owned: () => generatorsRuby, setOwned: v => generatorsRuby = v, label: 'Ruby Generators', button: 'generateRuby', span: 'generatorsRuby' },
-      emerald: { baseCost: new BigNumber(9000), costScale: new BigNumber(1), power: 0.506, owned: () => generatorsEmerald, setOwned: v => generatorsEmerald = v, label: 'Emerald Generators', button: 'generateEmerald', span: 'generatorsEmerald' }
+      coal: { baseCost: new BigNumber(10), power: 0.1, key: "generatorsCoal", label: "Coal Generators", button: "generateCoal", span: "generatorsCoal" },
+      iron: { baseCost: new BigNumber(1000), power: 0.15, key: "generatorsIron", label: "Iron Generators", button: "generateIron", span: "generatorsIron" },
+      gold: { baseCost: new BigNumber(3000), power: 0.225, key: "generatorsGold", label: "Gold Generators", button: "generateGold", span: "generatorsGold" },
+      ruby: { baseCost: new BigNumber(6000), power: 0.338, key: "generatorsRuby", label: "Ruby Generators", button: "generateRuby", span: "generatorsRuby" },
+      emerald: { baseCost: new BigNumber(9000), power: 0.506, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald" }
     };
 
-    // --- Save & Load ---
-    function saveGame() {
-      username = document.getElementById('username').value.trim();
-      if (!username) { alert('Enter your username before saving.'); return; }
-      
-      const gameData = {
-        energy: energy.toString(),
-        eps: eps.toString(),
-        generators: generators.toString(),
-        generatorsCoal: generatorsCoal.toString(),
-        generatorsIron: generatorsIron.toString(),
-        generatorsGold: generatorsGold.toString(),
-        generatorsRuby: generatorsRuby.toString(),
-        generatorsEmerald: generatorsEmerald.toString()
-      };
-      localStorage.setItem(username, JSON.stringify(gameData));
-      localStorage.setItem('lastUsername', username);
-      alert('Game saved locally!');
-    }
+    // --- Helpers ---
+    function getEnergy() { return new BigNumber(gameData.energy); }
+    function setEnergy(val) { gameData.energy = val.toString(); }
+    function getEPS() { return new BigNumber(gameData.eps); }
+    function setEPS(val) { gameData.eps = val.toString(); }
+    function getGenCount(key) { return new BigNumber(gameData[key]); }
+    function setGenCount(key, val) { gameData[key] = val.toString(); }
+    function getTotalGenerators() { return new BigNumber(gameData.generators); }
+    function setTotalGenerators(val) { gameData.generators = val.toString(); }
 
-    function loadGame() {
-      username = document.getElementById('username').value.trim();
-      if (!username) { alert('Enter a username first.'); return; }
-      
-      const savedData = localStorage.getItem(username);
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        energy = new BigNumber(data.energy);
-        eps = new BigNumber(data.eps);
-        generators = new BigNumber(data.generators);
-        generatorsCoal = new BigNumber(data.generatorsCoal);
-        generatorsIron = new BigNumber(data.generatorsIron);
-        generatorsGold = new BigNumber(data.generatorsGold);
-        generatorsRuby = new BigNumber(data.generatorsRuby);
-        generatorsEmerald = new BigNumber(data.generatorsEmerald);
-        updateAllUI();
-        alert('Game loaded!');
-      } else {
-        alert('No save found for this username.');
-      }
-    }
-
-    // --- Number Formatting ---
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
       const suffixes = ['', 'k', 'm', 'b', 't', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
@@ -158,46 +103,72 @@
       return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
     }
 
-    // --- Cost Calculation ---
-    function getTotalCost(base, scale, owned, amount) {
-      if (scale.eq(1)) return base.times(amount);
-      const scalePowOwned = scale.pow(owned);
-      const scalePowAmount = scale.pow(amount);
-      const numerator = scalePowAmount.minus(1);
-      const denominator = scale.minus(1);
-      return base.times(scalePowOwned).times(numerator).div(denominator).integerValue(BigNumber.ROUND_FLOOR);
+    function getTotalCost(base, owned, amount) {
+      return base.times(amount); // flat cost, no scaling yet
     }
 
     // --- UI Update ---
     function updateAllUI() {
-      document.getElementById('energy').textContent = `Total Energy: ${formatNumber(energy)}`;
-      document.getElementById('eps').textContent = `EPS: ${formatNumber(eps)}`;
-      document.getElementById('generators').textContent = `Generators: ${formatNumber(generators)}`;
+      document.getElementById('energy').textContent = `Total Energy: ${formatNumber(getEnergy())}`;
+      document.getElementById('eps').textContent = `EPS: ${formatNumber(getEPS())}`;
+      document.getElementById('generators').textContent = `Generators: ${formatNumber(getTotalGenerators())}`;
       for (const key in generatorConfig) {
         const gen = generatorConfig[key];
-        const cost = getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier);
-        document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(gen.owned())}`;
+        const cost = getTotalCost(gen.baseCost, getGenCount(gen.key), multiplier);
+        document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(getGenCount(gen.key))}`;
         const btn = document.getElementById(gen.button);
         btn.textContent = `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(cost)})`;
-        btn.disabled = !energy.gte(cost);
-        btn.classList.toggle('disabled', btn.disabled);
+        btn.disabled = !getEnergy().gte(cost);
       }
     }
 
-    // --- Buy Generators ---
+    // --- Game Actions ---
     function purchaseGenerator(key) {
       const gen = generatorConfig[key];
-      const totalCost = getTotalCost(gen.baseCost, gen.costScale, gen.owned(), multiplier);
-      if (energy.gte(totalCost)) {
-        energy = energy.minus(totalCost);
-        eps = eps.plus(new BigNumber(gen.power).times(multiplier));
-        gen.setOwned(gen.owned().plus(multiplier));
-        generators = generators.plus(multiplier);
+      const cost = getTotalCost(gen.baseCost, getGenCount(gen.key), multiplier);
+      if (getEnergy().gte(cost)) {
+        setEnergy(getEnergy().minus(cost));
+        setEPS(getEPS().plus(new BigNumber(gen.power).times(multiplier)));
+        setGenCount(gen.key, getGenCount(gen.key).plus(multiplier));
+        setTotalGenerators(getTotalGenerators().plus(multiplier));
         updateAllUI();
       }
     }
 
-    // --- Hook Buttons ---
+    // --- Save / Load / Reset ---
+    function saveGame() {
+      username = document.getElementById('username').value.trim();
+      if (!username) { alert('Enter your username before saving.'); return; }
+      localStorage.setItem(username, JSON.stringify(gameData));
+      localStorage.setItem('lastUsername', username);
+      alert('Game saved!');
+    }
+
+    function loadGame() {
+      username = document.getElementById('username').value.trim();
+      if (!username) { alert('Enter a username first.'); return; }
+      const savedData = localStorage.getItem(username);
+      if (savedData) {
+        gameData = JSON.parse(savedData);
+        updateAllUI();
+        alert('Game loaded!');
+      } else {
+        alert('No save found for this username.');
+      }
+    }
+
+    function resetGame() {
+      if (confirm("Are you sure you want to reset your game? This cannot be undone!")) {
+        gameData = JSON.parse(JSON.stringify(defaultGameData));
+        if (username) {
+          localStorage.removeItem(username);
+        }
+        updateAllUI();
+        alert("Game reset to original state!");
+      }
+    }
+
+    // --- Event Listeners ---
     document.getElementById('purchase-multiplier').onchange = function() {
       multiplier = parseInt(this.value, 10);
       updateAllUI();
@@ -207,6 +178,7 @@
     }
     document.getElementById('saveBtn').onclick = saveGame;
     document.getElementById('loadBtn').onclick = loadGame;
+    document.getElementById('resetBtn').onclick = resetGame;
 
     // --- Auto-load last username ---
     window.onload = function() {
@@ -215,63 +187,20 @@
         document.getElementById('username').value = lastUser;
         username = lastUser;
         loadGame();
+      } else {
+        updateAllUI();
       }
     };
-
-
-    const defaultGameData = {
-    energy: 0,
-    generators: [
-        { name: "Coal Generator", count: 0 },
-        { name: "Iron Generator", count: 0 },
-        { name: "Copper Generator", count: 0 },
-        // ... repeat for all 20 generators
-    ]
-};
-
-// Current game data
-let gameData = JSON.parse(localStorage.getItem("gameData")) || structuredClone(defaultGameData);
-
-// Save game
-function saveGame() {
-    localStorage.setItem("gameData", JSON.stringify(gameData));
-}
-
-// Load game
-function loadGame() {
-    const savedData = JSON.parse(localStorage.getItem("gameData"));
-    if (savedData) {
-        gameData = savedData;
-    } else {
-        gameData = structuredClone(defaultGameData);
-    }
-}
-
-// Reset game to original state
-function resetGame() {
-    if (confirm("Are you sure you want to reset your game? This cannot be undone!")) {
-        gameData = structuredClone(defaultGameData);
-        saveGame(); // overwrite old save with fresh data
-        alert("Game reset to original state!");
-        location.reload(); // optional: refresh page to reflect changes
-    }
-}
-
-// Example usage
-document.getElementById("resetButton").addEventListener("click", resetGame);
 
     // --- Game Loop ---
     setInterval(() => {
       let totalAdd = new BigNumber(0);
       for (const key in generatorConfig) {
-        totalAdd = totalAdd.plus(generatorConfig[key].owned().times(generatorConfig[key].power));
+        totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power));
       }
-      energy = energy.plus(totalAdd);
+      setEnergy(getEnergy().plus(totalAdd));
       updateAllUI();
     }, 1000);
-
-    // --- Initial UI ---
-    updateAllUI();
   </script>
 </body>
 </html>
