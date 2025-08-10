@@ -101,7 +101,7 @@
     function getGenCount(key) { return new BigNumber(gameData[key]); }
     function setGenCount(key, val) { gameData[key] = val.toString(); }
     function getTotalGenerators() { return new BigNumber(gameData.generators); }
-    function setTotalGenerators(val) { gameData.generators = val.toString(); }
+    function setTotalGenerators(val) { gameData.upgradeMaxGenerators = val.toString(); }
 
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
