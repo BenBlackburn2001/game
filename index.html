@@ -101,7 +101,6 @@
     function getGenCount(key) { return new BigNumber(gameData[key]); }
     function setGenCount(key, val) { gameData[key] = val.toString(); }
     function getTotalGenerators() { return new BigNumber(gameData.generators); }
-    function setTotalGenerators(val) { gameData.upgradeMaxGenerators = val.toString(); }
 
     function formatNumber(num) {
       if (!(num instanceof BigNumber)) num = new BigNumber(num);
@@ -195,6 +194,11 @@
       username = document.getElementById('username').value.trim();
       if (!username) { alert('Enter a username first.'); return; }
       const savedData = localStorage.getItem(username);
+      if (saved.generatorMax) {
+        for (const key in saved.generatorMax) {
+          generatorConfig[key].max = saved.generatorMax[key];
+    }
+}
       if (savedData) {
         gameData = JSON.parse(savedData);
         updateAllUI();
