@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Generator Game</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body {
       background: #23272b;
@@ -373,6 +372,11 @@
       const gen = generatorConfig[key];
       const owned = getGenCount(gen.key);
 
+      // Always sync max with gameData
+      if (gameData.generatorMax && gameData.generatorMax[key] !== undefined) {
+        gen.max = gameData.generatorMax[key];
+      }
+
       // Upgrade info
       const upgrade = generatorUpgrades[key];
       const upgradeBtn = document.getElementById(gen.upgrade);
@@ -497,35 +501,40 @@
     username = document.getElementById('username').value.trim();
     if (!username) { showToast('Enter a username first.'); return; }
 
-    const savedData = localStorage.getItem(username);
-    if (savedData) {
-      const saved = JSON.parse(savedData);
-      gameData = saved;
+    try {
+      const savedData = localStorage.getItem(username);
+      if (savedData) {
+        const saved = JSON.parse(savedData);
+        gameData = saved;
 
-      if (saved.generatorMax) {
-        for (const key in saved.generatorMax) {
-          generatorConfig[key].max = saved.generatorMax[key];
+        if (saved.generatorMax) {
+          for (const key in saved.generatorMax) {
+            generatorConfig[key].max = saved.generatorMax[key];
+          }
         }
-      }
-      // Load upgrades
-      if (saved.generatorUpgrades) {
-        for (const key in saved.generatorUpgrades) {
-          generatorUpgrades[key].level = saved.generatorUpgrades[key].level;
-          generatorUpgrades[key].cost = new BigNumber(saved.generatorUpgrades[key].cost);
+        // Load upgrades
+        if (saved.generatorUpgrades) {
+          for (const key in saved.generatorUpgrades) {
+            generatorUpgrades[key].level = saved.generatorUpgrades[key].level;
+            generatorUpgrades[key].cost = new BigNumber(saved.generatorUpgrades[key].cost);
+          }
         }
-      }
-      // Load max upgrades
-      if (saved.generatorMaxUpgrades) {
-        for (const key in saved.generatorMaxUpgrades) {
-          if (saved.generatorMaxUpgrades[key].cost)
-            generatorMaxUpgrades[key].cost = new BigNumber(saved.generatorMaxUpgrades[key].cost);
+        // Load max upgrades
+        if (saved.generatorMaxUpgrades) {
+          for (const key in saved.generatorMaxUpgrades) {
+            if (saved.generatorMaxUpgrades[key].cost)
+              generatorMaxUpgrades[key].cost = new BigNumber(saved.generatorMaxUpgrades[key].cost);
+          }
         }
+        recalculateEPS();
+        updateAllUI();
+        showToast('Game loaded!');
+      } else {
+        showToast('No save found for this username.');
       }
-      recalculateEPS();
-      updateAllUI();
-      showToast('Game loaded!');
-    } else {
-      showToast('No save found for this username.');
+    } catch (e) {
+      showToast('Corrupt save data. Resetting game.');
+      resetGame();
     }
   }
 
