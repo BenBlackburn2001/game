@@ -1,3 +1,4 @@
+/* --- General Styles --- */
 body {
   background: linear-gradient(135deg, #23272b 0%, #181a1b 100%);
   color: #e0e0e0;
@@ -27,6 +28,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .main-stats > div {
@@ -41,12 +43,14 @@ h1 {
   box-shadow: 0 2px 12px #0008;
   min-width: 180px;
   text-align: center;
+  flex: 1 1 220px;
 }
 
 #generators-section {
   margin-top: 12px;
 }
 
+/* --- Generator Row --- */
 .generator-row {
   display: flex;
   align-items: center;
@@ -59,6 +63,7 @@ h1 {
   box-shadow: 0 2px 12px #000a;
   transition: box-shadow 0.2s;
   position: relative;
+  flex-wrap: wrap; /* Allow wrapping to prevent overflow */
 }
 
 .generator-row:hover {
@@ -66,7 +71,8 @@ h1 {
 }
 
 .generator-label {
-  min-width: 180px;
+  min-width: 0;
+  max-width: 220px;
   font-size: 1.1em;
   color: #e0e0e0;
   font-family: 'Orbitron', monospace;
@@ -75,26 +81,18 @@ h1 {
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  flex: 1 1 180px;
 }
 
-.generator-label::before {
-  content: '';
-  display: inline-block;
-  width: 28px;
-  height: 28px;
-  background-size: cover;
-  background-repeat: no-repeat;
-  margin-right: 8px;
-}
-
-.generator-row:nth-child(1) .generator-label::before { background-image: url('https://img.icons8.com/ios-filled/50/cccccc/coal.png'); }
-.generator-row:nth-child(2) .generator-label::before { background-image: url('https://img.icons8.com/ios-filled/50/cccccc/metal.png'); }
-.generator-row:nth-child(3) .generator-label::before { background-image: url('https://img.icons8.com/ios-filled/50/ffd700/gold-bar.png'); }
-.generator-row:nth-child(4) .generator-label::before { background-image: url('https://img.icons8.com/ios-filled/50/ff1744/ruby-gemstone.png'); }
-.generator-row:nth-child(5) .generator-label::before { background-image: url('https://img.icons8.com/ios-filled/50/00e676/emerald.png'); }
-.generator-row:nth-child(6) .generator-label::before { background-image: url('https://img.icons8.com/ios-filled/50/00bcd4/diamond.png'); }
-
+/* --- Generator Buttons --- */
 .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
+  min-width: 100px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0 2px;
   padding: 10px 18px;
   border-radius: 6px;
@@ -104,11 +102,10 @@ h1 {
   background: #23272b;
   color: #fff;
   font-size: 1em;
-  min-width: 140px;
   box-shadow: 0 2px 8px #0006;
   transition: background 0.2s, color 0.2s, border 0.2s;
-  white-space: nowrap;
   outline: none;
+  flex: 1 1 140px;
 }
 
 .generator-btn {
@@ -163,6 +160,7 @@ h1 {
   box-shadow: none;
 }
 
+/* --- Toast --- */
 #toast-container {
   position: fixed;
   bottom: 24px;
@@ -185,6 +183,8 @@ h1 {
   from { transform: translateY(40px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 0.95; }
 }
+
+/* --- Menu Bar --- */
 .menu-bar {
   margin: 0 0 24px 0;
   display: flex;
@@ -233,6 +233,8 @@ h1 {
   background: #181a1b;
   color: #fff;
 }
+
+/* --- Responsive --- */
 @media (max-width: 900px) {
   main {
     padding: 0 2vw;
@@ -252,17 +254,18 @@ h1 {
     padding: 12px 4px;
   }
   .generator-label {
+    max-width: 100%;
     min-width: 0;
-    font-size: 1em;
-    margin-bottom: 2px;
-    text-align: left;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    flex: 1 1 100%;
   }
   .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
+    max-width: 100%;
     min-width: 0;
-    width: 100%;
-    font-size: 1em;
-    margin: 2px 0;
-    padding: 10px 0;
+    white-space: normal;
+    text-overflow: unset;
+    flex: 1 1 100%;
   }
   #toast-container {
     right: 4vw;
