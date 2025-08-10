@@ -1,3 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generator Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="purchase-multiplier-container">
+    <label for="purchase-multiplier">Purchase:</label>
+    <select id="purchase-multiplier">
+      <option value="1">1x</option>
+      <option value="2">2x</option>
+      <option value="5">5x</option>
+      <option value="10">10x</option>
+      <option value="50">50x</option>
+      <option value="100">100x</option>
+      <option value="1000">1,000x</option>
+    </select>
+  </div>
+  <div class="menu-bar">
+    <button id="homeBtn" class="menu-button">Home</button>
+    <input type="text" id="username" placeholder="Username">
+    <button id="saveBtn" class="menu-button">Save Game</button>
+    <button id="loadBtn" class="menu-button">Load Game</button>
+    <button id="resetBtn" class="menu-button">Reset Game</button>
+  </div>
+
+  <main>
+    <h1>Generators Game</h1>
+    <div id="energy">Total Energy: 10</div>
+    <div id="eps">EPS: 0</div>
+    <div id="generators">Generators: 0</div>
+
+    <section id="generators-section">
+      <div class="generator-row">
+        <span id="generatorsCoal" class="generator-label">Coal Generators: 0 / 100</span>
+        <button id="generateCoal" class="generator-btn">Buy Coal Generator (Cost: 10)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsIron" class="generator-label">Iron Generators: 0 / 100</span>
+        <button id="generateIron" class="generator-btn">Buy Iron Generator (Cost: 1k)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsGold" class="generator-label">Gold Generators: 0 / 50</span>
+        <button id="generateGold" class="generator-btn">Buy Gold Generator (Cost: 3k)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsRuby" class="generator-label">Ruby Generators: 0 / 25</span>
+        <button id="generateRuby" class="generator-btn">Buy Ruby Generator (Cost: 6k)</button>
+      </div>
+      <div class="generator-row">
+        <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0 / 10</span>
+        <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
+      </div>
+    </section>
+
+    <!-- New Upgrades Menu -->
+    <section id="upgrades-section" style="margin-top: 20px;">
+      <h2>Upgrades</h2>
+      <div class="upgrade-row">
+        <button id="upgradeMaxGen" class="upgrade-btn">
+          Increase Max Generators by 100 (Cost: 1000)
+        </button>
+      </div>
+    </section>
+  </main>
 <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
 <script>
   // --- Default Game Data ---
@@ -15,9 +82,9 @@
 
   let username = "";
   let gameData = JSON.parse(JSON.stringify(defaultGameData));
+  let multiplier = 1;
 
   // --- Generator Config ---
-  let multiplier = 1;
   const generatorConfig = {
     coal:    { baseCost: new BigNumber(10),    power: 1,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal },
     iron:    { baseCost: new BigNumber(1000),  power: 3,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron },
@@ -48,7 +115,7 @@
   }
 
   function getTotalCost(base, owned, amount) {
-    return base.times(amount); // still flat cost; can replace with scaling if wanted
+    return base.times(amount); // flat cost
   }
 
   // --- UI Update ---
@@ -76,7 +143,6 @@
       btn.disabled = !getEnergy().gte(cost);
     }
 
-    // Upgrade button status
     document.getElementById("upgradeMaxGen").disabled = !getEnergy().gte(1000);
   }
 
@@ -111,7 +177,7 @@
       setEnergy(getEnergy().minus(upgradeCost));
       for (const key in generatorConfig) {
         generatorConfig[key].max += 100;
-        gameData.generatorMax[key] = generatorConfig[key].max; // persist upgrade
+        gameData.generatorMax[key] = generatorConfig[key].max;
       }
       updateAllUI();
     }
@@ -122,7 +188,6 @@
     username = document.getElementById('username').value.trim();
     if (!username) { alert('Enter your username before saving.'); return; }
 
-    // copy generator max values into save data
     const saveCopy = { ...gameData, generatorMax: {} };
     for (const key in generatorConfig) {
       saveCopy.generatorMax[key] = generatorConfig[key].max;
@@ -142,7 +207,6 @@
       const saved = JSON.parse(savedData);
       gameData = saved;
 
-      // restore generator max values if saved
       if (saved.generatorMax) {
         for (const key in saved.generatorMax) {
           generatorConfig[key].max = saved.generatorMax[key];
@@ -169,21 +233,24 @@
     }
   }
 
-  // --- Event Listeners ---
-  document.getElementById('purchase-multiplier').onchange = function() {
-    multiplier = parseInt(this.value, 10);
-    updateAllUI();
-  };
-  for (const key in generatorConfig) {
-    document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
-  }
-  document.getElementById('upgradeMaxGen').onclick = upgradeMaxGenerators;
-  document.getElementById('saveBtn').onclick = saveGame;
-  document.getElementById('loadBtn').onclick = loadGame;
-  document.getElementById('resetBtn').onclick = resetGame;
-
-  // --- Auto-load last username ---
+  // --- Start Game After DOM Loads ---
   window.onload = function() {
+    // Event listeners
+    document.getElementById('purchase-multiplier').onchange = function() {
+      multiplier = parseInt(this.value, 10);
+      updateAllUI();
+    };
+
+    for (const key in generatorConfig) {
+      document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
+    }
+
+    document.getElementById('upgradeMaxGen').onclick = upgradeMaxGenerators;
+    document.getElementById('saveBtn').onclick = saveGame;
+    document.getElementById('loadBtn').onclick = loadGame;
+    document.getElementById('resetBtn').onclick = resetGame;
+
+    // Auto-load last user
     const lastUser = localStorage.getItem('lastUsername');
     if (lastUser) {
       document.getElementById('username').value = lastUser;
@@ -192,15 +259,18 @@
     } else {
       updateAllUI();
     }
-  };
 
-  // --- Game Loop ---
-  setInterval(() => {
-    let totalAdd = new BigNumber(0);
-    for (const key in generatorConfig) {
-      totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power));
-    }
-    setEnergy(getEnergy().plus(totalAdd));
-    updateAllUI();
-  }, 1000);
+    // Game loop
+    setInterval(() => {
+      let totalAdd = new BigNumber(0);
+      for (const key in generatorConfig) {
+        totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power));
+      }
+      setEnergy(getEnergy().plus(totalAdd));
+      updateAllUI();
+    }, 1000);
+  };
 </script>
+</body>
+</html>
+
