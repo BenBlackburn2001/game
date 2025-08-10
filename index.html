@@ -54,6 +54,16 @@
         <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
       </div>
     </section>
+
+    <!-- New Upgrades Menu -->
+    <section id="upgrades-section" style="margin-top: 20px;">
+      <h2>Upgrades</h2>
+      <div class="upgrade-row">
+        <button id="upgradeMaxGen" class="upgrade-btn">
+          Increase Max Generators by 100 (Cost: 1000)
+        </button>
+      </div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
@@ -76,11 +86,11 @@
     // --- Generator Config ---
     let multiplier = 1;
     const generatorConfig = {
-      coal:    { baseCost: new BigNumber(5),  power: 1,    key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: 100 },
-      iron:    { baseCost: new BigNumber(10), power: 3,    key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: 100 },
-      gold:    { baseCost: new BigNumber(20), power: 8,    key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: 50 },
-      ruby:    { baseCost: new BigNumber(35), power: 20,   key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: 25 },
-      emerald: { baseCost: new BigNumber(62), power: 50,   key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: 10 }
+      coal:    { baseCost: new BigNumber(5),  power: 1,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: 100 },
+      iron:    { baseCost: new BigNumber(10), power: 3,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: 100 },
+      gold:    { baseCost: new BigNumber(20), power: 8,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: 50 },
+      ruby:    { baseCost: new BigNumber(35), power: 20, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: 25 },
+      emerald: { baseCost: new BigNumber(62), power: 50, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: 10 }
     };
 
     // --- Helpers ---
@@ -104,14 +114,8 @@
       return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
     }
 
-    // Scaled cost formula
     function getTotalCost(base, owned, amount) {
-      const growthRate = 1.15;
-      let total = new BigNumber(0);
-      for (let i = 0; i < amount; i++) {
-        total = total.plus(base.times(new BigNumber(growthRate).pow(owned.plus(i))));
-      }
-      return total;
+      return base.times(amount); // flat cost
     }
 
     // --- UI Update ---
@@ -138,6 +142,9 @@
         btn.textContent = `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(cost)})`;
         btn.disabled = !getEnergy().gte(cost);
       }
+
+      // Upgrade button status
+      document.getElementById("upgradeMaxGen").disabled = !getEnergy().gte(1000);
     }
 
     // --- Purchase Logic ---
@@ -161,6 +168,21 @@
         updateAllUI();
       } else {
         alert("Not enough energy!");
+      }
+    }
+
+    // --- Upgrade Logic ---
+    function upgradeMaxGenerators() {
+      const upgradeCost = new BigNumber(1000);
+      if (getEnergy().gte(upgradeCost)) {
+        setEnergy(getEnergy().minus(upgradeCost));
+        for (const key in generatorConfig) {
+          generatorConfig[key].max += 100;
+        }
+        updateAllUI();
+        alert("Max generator limit increased by 100 for all generators!");
+      } else {
+        alert("Not enough energy for this upgrade!");
       }
     }
 
@@ -205,6 +227,7 @@
     for (const key in generatorConfig) {
       document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
     }
+    document.getElementById('upgradeMaxGen').onclick = upgradeMaxGenerators;
     document.getElementById('saveBtn').onclick = saveGame;
     document.getElementById('loadBtn').onclick = loadGame;
     document.getElementById('resetBtn').onclick = resetGame;
