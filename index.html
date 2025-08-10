@@ -96,11 +96,11 @@
     // --- Generator Config ---
     let multiplier = 1;
     const generatorConfig = {
-      coal: { baseCost: new BigNumber(10),   costScale: new BigNumber(1), power: 1, owned: () => generatorsCoal, setOwned: v => generatorsCoal = v, label: 'Coal Generators', button: 'generateCoal', span: 'generatorsCoal' },
-      iron: { baseCost: new BigNumber(1000), costScale: new BigNumber(1), power: 2, owned: () => generatorsIron, setOwned: v => generatorsIron = v, label: 'Iron Generators', button: 'generateIron', span: 'generatorsIron' },
-      gold: { baseCost: new BigNumber(3000), costScale: new BigNumber(1), power: 3, owned: () => generatorsGold, setOwned: v => generatorsGold = v, label: 'Gold Generators', button: 'generateGold', span: 'generatorsGold' },
-      ruby: { baseCost: new BigNumber(6000), costScale: new BigNumber(1), power: 4, owned: () => generatorsRuby, setOwned: v => generatorsRuby = v, label: 'Ruby Generators', button: 'generateRuby', span: 'generatorsRuby' },
-      emerald: { baseCost: new BigNumber(9000), costScale: new BigNumber(1), power: 5, owned: () => generatorsEmerald, setOwned: v => generatorsEmerald = v, label: 'Emerald Generators', button: 'generateEmerald', span: 'generatorsEmerald' }
+      coal: { baseCost: new BigNumber(10),   costScale: new BigNumber(1), power: 0.1, owned: () => generatorsCoal, setOwned: v => generatorsCoal = v, label: 'Coal Generators', button: 'generateCoal', span: 'generatorsCoal' },
+      iron: { baseCost: new BigNumber(1000), costScale: new BigNumber(1), power: 0.15, owned: () => generatorsIron, setOwned: v => generatorsIron = v, label: 'Iron Generators', button: 'generateIron', span: 'generatorsIron' },
+      gold: { baseCost: new BigNumber(3000), costScale: new BigNumber(1), power: 0.225, owned: () => generatorsGold, setOwned: v => generatorsGold = v, label: 'Gold Generators', button: 'generateGold', span: 'generatorsGold' },
+      ruby: { baseCost: new BigNumber(6000), costScale: new BigNumber(1), power: 0.338, owned: () => generatorsRuby, setOwned: v => generatorsRuby = v, label: 'Ruby Generators', button: 'generateRuby', span: 'generatorsRuby' },
+      emerald: { baseCost: new BigNumber(9000), costScale: new BigNumber(1), power: 0.506, owned: () => generatorsEmerald, setOwned: v => generatorsEmerald = v, label: 'Emerald Generators', button: 'generateEmerald', span: 'generatorsEmerald' }
     };
 
     // --- Save & Load ---
