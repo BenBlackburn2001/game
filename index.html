@@ -4,6 +4,57 @@
   <meta charset="UTF-8">
   <title>Generator Game</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .generator-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .generator-btn, .upgrade-btn, .sell-btn {
+      margin-left: 4px;
+      margin-right: 4px;
+      padding: 6px 14px;
+      border-radius: 5px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      background: #444;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    .generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled {
+      background: #222;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .upgrade-btn { background: #1976d2; }
+    .upgrade-btn:disabled { background: #123a5e; }
+    .sell-btn { background: #c62828; }
+    .sell-btn:disabled { background: #5e1212; }
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+    }
+    #toast-container .toast {
+      background: #23272b;
+      color: #fff;
+      padding: 16px 28px;
+      margin-top: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px #0008;
+      font-size: 1.1em;
+      opacity: 0.95;
+      animation: toast-in 0.3s;
+      min-width: 180px;
+    }
+    @keyframes toast-in {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 0.95; }
+    }
+  </style>
 </head>
 <body>
   <div id="purchase-multiplier-container">
@@ -36,26 +87,35 @@
       <div class="generator-row">
         <span id="generatorsCoal" class="generator-label">Coal Generators: 0 / 100</span>
         <button id="generateCoal" class="generator-btn">Buy Coal Generator (Cost: 10)</button>
+        <button id="sellCoal" class="sell-btn">Sell</button>
+        <button id="upgradeCoal" class="upgrade-btn">Upgrade (Cost: 1k)</button>
       </div>
       <div class="generator-row">
         <span id="generatorsIron" class="generator-label">Iron Generators: 0 / 100</span>
         <button id="generateIron" class="generator-btn">Buy Iron Generator (Cost: 1k)</button>
+        <button id="sellIron" class="sell-btn">Sell</button>
+        <button id="upgradeIron" class="upgrade-btn">Upgrade (Cost: 1k)</button>
       </div>
       <div class="generator-row">
         <span id="generatorsGold" class="generator-label">Gold Generators: 0 / 50</span>
         <button id="generateGold" class="generator-btn">Buy Gold Generator (Cost: 3k)</button>
+        <button id="sellGold" class="sell-btn">Sell</button>
+        <button id="upgradeGold" class="upgrade-btn">Upgrade (Cost: 1k)</button>
       </div>
       <div class="generator-row">
         <span id="generatorsRuby" class="generator-label">Ruby Generators: 0 / 25</span>
         <button id="generateRuby" class="generator-btn">Buy Ruby Generator (Cost: 6k)</button>
+        <button id="sellRuby" class="sell-btn">Sell</button>
+        <button id="upgradeRuby" class="upgrade-btn">Upgrade (Cost: 1k)</button>
       </div>
       <div class="generator-row">
         <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0 / 10</span>
         <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
+        <button id="sellEmerald" class="sell-btn">Sell</button>
+        <button id="upgradeEmerald" class="upgrade-btn">Upgrade (Cost: 1k)</button>
       </div>
     </section>
 
-    <!-- New Upgrades Menu -->
     <section id="upgrades-section" style="margin-top: 20px;">
       <h2>Upgrades</h2>
       <div class="upgrade-row">
@@ -65,8 +125,23 @@
       </div>
     </section>
   </main>
+  <div id="toast-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
 <script>
+  // --- Toast Notification ---
+  function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.transition = 'opacity 0.5s';
+      toast.style.opacity = '0';
+      setTimeout(() => container.removeChild(toast), 500);
+    }, 2000);
+  }
+
   // --- Default Game Data ---
   const defaultGameData = {
     energy: "10",
@@ -84,13 +159,22 @@
   let gameData = JSON.parse(JSON.stringify(defaultGameData));
   let multiplier = 1;
 
+  // --- Upgrades State ---
+  const generatorUpgrades = {
+    coal:    { level: 0, cost: new BigNumber(1000) },
+    iron:    { level: 0, cost: new BigNumber(1000) },
+    gold:    { level: 0, cost: new BigNumber(1000) },
+    ruby:    { level: 0, cost: new BigNumber(1000) },
+    emerald: { level: 0, cost: new BigNumber(1000) }
+  };
+
   // --- Generator Config ---
   const generatorConfig = {
-    coal:    { baseCost: new BigNumber(10),    power: 1,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal },
-    iron:    { baseCost: new BigNumber(1000),  power: 3,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron },
-    gold:    { baseCost: new BigNumber(3000),  power: 8,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold },
-    ruby:    { baseCost: new BigNumber(6000),  power: 20, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby },
-    emerald: { baseCost: new BigNumber(9000),  power: 50, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald }
+    coal:    { baseCost: new BigNumber(10),    power: () => 1 + generatorUpgrades.coal.level,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal, upgrade: "upgradeCoal", sell: "sellCoal" },
+    iron:    { baseCost: new BigNumber(1000),  power: () => 3 + generatorUpgrades.iron.level,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron, upgrade: "upgradeIron", sell: "sellIron" },
+    gold:    { baseCost: new BigNumber(3000),  power: () => 8 + generatorUpgrades.gold.level,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold, upgrade: "upgradeGold", sell: "sellGold" },
+    ruby:    { baseCost: new BigNumber(6000),  power: () => 20 + generatorUpgrades.ruby.level, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby, upgrade: "upgradeRuby", sell: "sellRuby" },
+    emerald: { baseCost: new BigNumber(9000),  power: () => 50 + generatorUpgrades.emerald.level, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald" }
   };
 
   // --- Helpers ---
@@ -128,6 +212,16 @@
       const gen = generatorConfig[key];
       const owned = getGenCount(gen.key);
 
+      // Upgrade info
+      const upgrade = generatorUpgrades[key];
+      const upgradeBtn = document.getElementById(gen.upgrade);
+      upgradeBtn.textContent = `Upgrade (Cost: ${formatNumber(upgrade.cost)}) [+${upgrade.level}]`;
+      upgradeBtn.disabled = !getEnergy().gte(upgrade.cost) || owned.lte(0);
+
+      // Sell info
+      const sellBtn = document.getElementById(gen.sell);
+      sellBtn.disabled = owned.lte(0);
+
       if (owned.gte(gen.max)) {
         document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(owned)} / ${gen.max}`;
         const btn = document.getElementById(gen.button);
@@ -151,26 +245,46 @@
     const gen = generatorConfig[key];
     const owned = getGenCount(gen.key);
 
-    if (owned.gte(gen.max)) {
-      alert(`You have reached the maximum number of ${gen.label}!`);
-      return;
-    }
+    if (owned.gte(gen.max)) return;
 
     let actualBuyAmount = Math.min(multiplier, gen.max - owned.toNumber());
     const cost = getTotalCost(gen.baseCost, owned, actualBuyAmount);
 
     if (getEnergy().gte(cost)) {
       setEnergy(getEnergy().minus(cost));
-      setEPS(getEPS().plus(new BigNumber(gen.power).times(actualBuyAmount)));
+      setEPS(getEPS().plus(new BigNumber(gen.power()).times(actualBuyAmount)));
       setGenCount(gen.key, owned.plus(actualBuyAmount));
       setTotalGenerators(getTotalGenerators().plus(actualBuyAmount));
       updateAllUI();
-    } else {
-      alert("Not enough energy!");
     }
   }
 
-  // --- Upgrade Logic ---
+  // --- Sell Logic ---
+  function sellGenerator(key) {
+    const gen = generatorConfig[key];
+    const owned = getGenCount(gen.key);
+    if (owned.lte(0)) return;
+    setGenCount(gen.key, owned.minus(1));
+    setTotalGenerators(getTotalGenerators().minus(1));
+    setEnergy(getEnergy().plus(gen.baseCost.times(0.5)));
+    setEPS(getEPS().minus(new BigNumber(gen.power())));
+    updateAllUI();
+  }
+
+  // --- Upgrade Logic (per generator) ---
+  function upgradeGenerator(key) {
+    const gen = generatorConfig[key];
+    const upgrade = generatorUpgrades[key];
+    const owned = getGenCount(gen.key);
+    if (getEnergy().gte(upgrade.cost) && owned.gt(0)) {
+      setEnergy(getEnergy().minus(upgrade.cost));
+      upgrade.level += 1;
+      upgrade.cost = upgrade.cost.times(2); // Double cost each time
+      updateAllUI();
+    }
+  }
+
+  // --- Upgrade Max Generators ---
   function upgradeMaxGenerators() {
     const upgradeCost = new BigNumber(1000);
     if (getEnergy().gte(upgradeCost)) {
@@ -186,21 +300,29 @@
   // --- Save / Load / Reset ---
   function saveGame() {
     username = document.getElementById('username').value.trim();
-    if (!username) { alert('Enter your username before saving.'); return; }
+    if (!username) { showToast('Enter your username before saving.'); return; }
 
     const saveCopy = { ...gameData, generatorMax: {} };
     for (const key in generatorConfig) {
       saveCopy.generatorMax[key] = generatorConfig[key].max;
     }
+    // Save upgrades
+    saveCopy.generatorUpgrades = {};
+    for (const key in generatorUpgrades) {
+      saveCopy.generatorUpgrades[key] = {
+        level: generatorUpgrades[key].level,
+        cost: generatorUpgrades[key].cost.toString()
+      };
+    }
 
     localStorage.setItem(username, JSON.stringify(saveCopy));
     localStorage.setItem('lastUsername', username);
-    alert('Game saved!');
+    showToast('Game saved!');
   }
 
   function loadGame() {
     username = document.getElementById('username').value.trim();
-    if (!username) { alert('Enter a username first.'); return; }
+    if (!username) { showToast('Enter a username first.'); return; }
 
     const savedData = localStorage.getItem(username);
     if (savedData) {
@@ -212,10 +334,17 @@
           generatorConfig[key].max = saved.generatorMax[key];
         }
       }
+      // Load upgrades
+      if (saved.generatorUpgrades) {
+        for (const key in saved.generatorUpgrades) {
+          generatorUpgrades[key].level = saved.generatorUpgrades[key].level;
+          generatorUpgrades[key].cost = new BigNumber(saved.generatorUpgrades[key].cost);
+        }
+      }
       updateAllUI();
-      alert('Game loaded!');
+      showToast('Game loaded!');
     } else {
-      alert('No save found for this username.');
+      showToast('No save found for this username.');
     }
   }
 
@@ -225,17 +354,21 @@
       for (const key in generatorConfig) {
         generatorConfig[key].max = defaultGameData.generatorMax[key];
       }
+      // Reset upgrades
+      for (const key in generatorUpgrades) {
+        generatorUpgrades[key].level = 0;
+        generatorUpgrades[key].cost = new BigNumber(1000);
+      }
       if (username) {
         localStorage.removeItem(username);
       }
       updateAllUI();
-      alert("Game reset to original state!");
+      showToast("Game reset to original state!");
     }
   }
 
   // --- Start Game After DOM Loads ---
   window.onload = function() {
-    // Event listeners
     document.getElementById('purchase-multiplier').onchange = function() {
       multiplier = parseInt(this.value, 10);
       updateAllUI();
@@ -243,6 +376,8 @@
 
     for (const key in generatorConfig) {
       document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
+      document.getElementById(generatorConfig[key].sell).onclick = () => sellGenerator(key);
+      document.getElementById(generatorConfig[key].upgrade).onclick = () => upgradeGenerator(key);
     }
 
     document.getElementById('upgradeMaxGen').onclick = upgradeMaxGenerators;
@@ -264,7 +399,7 @@
     setInterval(() => {
       let totalAdd = new BigNumber(0);
       for (const key in generatorConfig) {
-        totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power));
+        totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power()));
       }
       setEnergy(getEnergy().plus(totalAdd));
       updateAllUI();
@@ -273,4 +408,3 @@
 </script>
 </body>
 </html>
-
