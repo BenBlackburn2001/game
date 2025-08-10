@@ -34,23 +34,23 @@
 
     <section id="generators-section">
       <div class="generator-row">
-        <span id="generatorsCoal" class="generator-label">Coal Generators: 0</span>
+        <span id="generatorsCoal" class="generator-label">Coal Generators: 0 / 100</span>
         <button id="generateCoal" class="generator-btn">Buy Coal Generator (Cost: 10)</button>
       </div>
       <div class="generator-row">
-        <span id="generatorsIron" class="generator-label">Iron Generators: 0</span>
+        <span id="generatorsIron" class="generator-label">Iron Generators: 0 / 100</span>
         <button id="generateIron" class="generator-btn">Buy Iron Generator (Cost: 1k)</button>
       </div>
       <div class="generator-row">
-        <span id="generatorsGold" class="generator-label">Gold Generators: 0</span>
+        <span id="generatorsGold" class="generator-label">Gold Generators: 0 / 50</span>
         <button id="generateGold" class="generator-btn">Buy Gold Generator (Cost: 3k)</button>
       </div>
       <div class="generator-row">
-        <span id="generatorsRuby" class="generator-label">Ruby Generators: 0</span>
+        <span id="generatorsRuby" class="generator-label">Ruby Generators: 0 / 25</span>
         <button id="generateRuby" class="generator-btn">Buy Ruby Generator (Cost: 6k)</button>
       </div>
       <div class="generator-row">
-        <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0</span>
+        <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0 / 10</span>
         <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
       </div>
     </section>
@@ -76,11 +76,11 @@
     // --- Generator Config ---
     let multiplier = 1;
     const generatorConfig = {
-      coal: { baseCost: new BigNumber(5), power: 0.1, key: "generatorsCoal", label: "Coal Generators", button: "generateCoal", span: "generatorsCoal" },
-      iron: { baseCost: new BigNumber(10), power: 0.15, key: "generatorsIron", label: "Iron Generators", button: "generateIron", span: "generatorsIron" },
-      gold: { baseCost: new BigNumber(20), power: 0.225, key: "generatorsGold", label: "Gold Generators", button: "generateGold", span: "generatorsGold" },
-      ruby: { baseCost: new BigNumber(35), power: 0.338, key: "generatorsRuby", label: "Ruby Generators", button: "generateRuby", span: "generatorsRuby" },
-      emerald: { baseCost: new BigNumber(62), power: 0.506, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald" }
+      coal:    { baseCost: new BigNumber(5),  power: 1,    key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: 100 },
+      iron:    { baseCost: new BigNumber(10), power: 3,    key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: 100 },
+      gold:    { baseCost: new BigNumber(20), power: 8,    key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: 50 },
+      ruby:    { baseCost: new BigNumber(35), power: 20,   key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: 25 },
+      emerald: { baseCost: new BigNumber(62), power: 50,   key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: 10 }
     };
 
     // --- Helpers ---
@@ -104,8 +104,14 @@
       return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[tier];
     }
 
+    // Scaled cost formula
     function getTotalCost(base, owned, amount) {
-      return base.times(amount); // flat cost, no scaling yet
+      const growthRate = 1.15;
+      let total = new BigNumber(0);
+      for (let i = 0; i < amount; i++) {
+        total = total.plus(base.times(new BigNumber(growthRate).pow(owned.plus(i))));
+      }
+      return total;
     }
 
     // --- UI Update ---
@@ -113,26 +119,48 @@
       document.getElementById('energy').textContent = `Total Energy: ${formatNumber(getEnergy())}`;
       document.getElementById('eps').textContent = `EPS: ${formatNumber(getEPS())}`;
       document.getElementById('generators').textContent = `Generators: ${formatNumber(getTotalGenerators())}`;
+
       for (const key in generatorConfig) {
         const gen = generatorConfig[key];
-        const cost = getTotalCost(gen.baseCost, getGenCount(gen.key), multiplier);
-        document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(getGenCount(gen.key))}`;
+        const owned = getGenCount(gen.key);
+
+        if (owned.gte(gen.max)) {
+          document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(owned)} / ${gen.max}`;
+          const btn = document.getElementById(gen.button);
+          btn.textContent = `${gen.label} (MAXED)`;
+          btn.disabled = true;
+          continue;
+        }
+
+        const cost = getTotalCost(gen.baseCost, owned, multiplier);
+        document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(owned)} / ${gen.max}`;
         const btn = document.getElementById(gen.button);
         btn.textContent = `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(cost)})`;
         btn.disabled = !getEnergy().gte(cost);
       }
     }
 
-    // --- Game Actions ---
+    // --- Purchase Logic ---
     function purchaseGenerator(key) {
       const gen = generatorConfig[key];
-      const cost = getTotalCost(gen.baseCost, getGenCount(gen.key), multiplier);
+      const owned = getGenCount(gen.key);
+
+      if (owned.gte(gen.max)) {
+        alert(`You have reached the maximum number of ${gen.label}!`);
+        return;
+      }
+
+      let actualBuyAmount = Math.min(multiplier, gen.max - owned.toNumber());
+      const cost = getTotalCost(gen.baseCost, owned, actualBuyAmount);
+
       if (getEnergy().gte(cost)) {
         setEnergy(getEnergy().minus(cost));
-        setEPS(getEPS().plus(new BigNumber(gen.power).times(multiplier)));
-        setGenCount(gen.key, getGenCount(gen.key).plus(multiplier));
-        setTotalGenerators(getTotalGenerators().plus(multiplier));
+        setEPS(getEPS().plus(new BigNumber(gen.power).times(actualBuyAmount)));
+        setGenCount(gen.key, owned.plus(actualBuyAmount));
+        setTotalGenerators(getTotalGenerators().plus(actualBuyAmount));
         updateAllUI();
+      } else {
+        alert("Not enough energy!");
       }
     }
 
