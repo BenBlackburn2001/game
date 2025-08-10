@@ -19,11 +19,11 @@
     </select>
   </div>
   <div class="menu-bar">
-      <button class="menu-button">Home</button>
-      <input type="text" id="username" placeholder="Username">
-      <button class="menu-button" onclick="saveGame()">Save Game</button>
-      <button class="menu-button" onclick="loadGame()">Load Game</button>
-      <button class="menu-button" onclick="resetGame()">Reset Game</button>
+    <button id="homeBtn" class="menu-button">Home</button>
+    <input type="text" id="username" placeholder="Username">
+    <button id="saveBtn" class="menu-button">Save Game</button>
+    <button id="loadBtn" class="menu-button">Load Game</button>
+    <button id="resetBtn" class="menu-button">Reset Game</button>
   </div>
 
   <main>
@@ -202,6 +202,7 @@
       setEnergy(getEnergy().plus(totalAdd));
       updateAllUI();
     }, 1000);
+
   </script>
 </body>
 </html>
