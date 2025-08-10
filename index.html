@@ -5,105 +5,191 @@
   <title>Generator Game</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    body {
+      background: #23272b;
+      color: #fff;
+      font-family: 'Segoe UI', 'Consolas', monospace, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      color: #ffd600;
+      font-family: monospace;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .main-stats {
+      margin: 24px 0 24px 0;
+    }
+    .main-stats > div {
+      background: #23272b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      font-size: 1.2em;
+      box-shadow: 0 2px 8px #0002;
+      color: #ffd600;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
     .generator-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
-.generator-label {
-  min-width: 140px;
-  font-size: 1em;
-  word-break: break-word;
-}
-.generator-btn, .upgrade-btn, .sell-btn, .max-btn {
-  margin-left: 4px;
-  margin-right: 4px;
-  padding: 6px 14px;
-  border-radius: 5px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  background: #444;
-  color: #fff;
-  transition: background 0.2s;
-  font-size: 1em;
-  min-width: 120px;
-  margin-bottom: 4px;
-}
-.generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled, .max-btn:disabled {
-  background: #222;
-  color: #888;
-  cursor: not-allowed;
-}
-.upgrade-btn { background: #1976d2; }
-.upgrade-btn:disabled { background: #123a5e; }
-.sell-btn { background: #c62828; }
-.sell-btn:disabled { background: #5e1212; }
-.max-btn { background: #388e3c; }
-.max-btn:disabled { background: #1b3c1b; color: #888; cursor: not-allowed; }
-#toast-container {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
-}
-#toast-container .toast {
-  background: #23272b;
-  color: #fff;
-  padding: 16px 28px;
-  margin-top: 12px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px #0008;
-  font-size: 1.1em;
-  opacity: 0.95;
-  animation: toast-in 0.3s;
-  min-width: 180px;
-}
-@keyframes toast-in {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 0.95; }
-}
-
-/* Responsive styles for phones */
-@media (max-width: 600px) {
-  body {
-    font-size: 16px;
-    padding: 4px;
-  }
-  .generator-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  .generator-label {
-    min-width: 0;
-    font-size: 1em;
-    margin-bottom: 2px;
-  }
-  .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
-    min-width: 90vw;
-    width: 100%;
-    font-size: 1em;
-    margin: 2px 0;
-    padding: 10px 0;
-  }
-  #toast-container {
-    right: 4vw;
-    left: 4vw;
-    bottom: 12px;
-  }
-  #toast-container .toast {
-    min-width: 0;
-    width: 100%;
-    font-size: 1em;
-    padding: 12px 8px;
-  }
-  main {
-    padding: 0 2vw;
-  }
-}
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      background: #23272b;
+      border-radius: 8px;
+      padding: 12px 8px;
+      box-shadow: 0 2px 8px #0002;
+    }
+    .generator-label {
+      min-width: 180px;
+      font-size: 1em;
+      word-break: break-word;
+      color: #fffde7;
+      margin-bottom: 0;
+      font-family: monospace;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+    .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
+      margin: 0 2px;
+      padding: 8px 14px;
+      border-radius: 5px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      background: #444;
+      color: #fff;
+      transition: background 0.2s;
+      font-size: 1em;
+      min-width: 170px;
+      margin-bottom: 0;
+      box-shadow: 0 1px 4px #0002;
+      white-space: nowrap;
+    }
+    .generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled, .max-btn:disabled {
+      background: #222;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .upgrade-btn { background: #1976d2; }
+    .upgrade-btn:disabled { background: #123a5e; }
+    .sell-btn { background: #c62828; }
+    .sell-btn:disabled { background: #5e1212; }
+    .max-btn { background: #388e3c; }
+    .max-btn:disabled { background: #1b3c1b; color: #888; cursor: not-allowed; }
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+    }
+    #toast-container .toast {
+      background: #23272b;
+      color: #fff;
+      padding: 16px 28px;
+      margin-top: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px #0008;
+      font-size: 1.1em;
+      opacity: 0.95;
+      animation: toast-in 0.3s;
+      min-width: 180px;
+    }
+    @keyframes toast-in {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 0.95; }
+    }
+    .menu-bar {
+      margin: 0 0 16px 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .menu-button {
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      transition: background 0.2s;
+    }
+    .menu-button:active {
+      background: #222;
+    }
+    #username {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1em;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      background: #181a1b;
+      color: #fff;
+    }
+    #purchase-multiplier-container {
+      margin: 12px 0 12px 0;
+    }
+    #purchase-multiplier {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: none;
+      font-size: 1em;
+      background: #181a1b;
+      color: #fff;
+    }
+    @media (max-width: 700px) {
+      main {
+        padding: 0 2vw;
+      }
+      .main-stats > div {
+        font-size: 1em;
+        padding: 10px 8px;
+      }
+      .generator-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        padding: 10px 4px;
+      }
+      .generator-label {
+        min-width: 0;
+        font-size: 1em;
+        margin-bottom: 2px;
+        text-align: left;
+      }
+      .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
+        min-width: 0;
+        width: 100%;
+        font-size: 1em;
+        margin: 2px 0;
+        padding: 10px 0;
+      }
+      #toast-container {
+        right: 4vw;
+        left: 4vw;
+        bottom: 12px;
+      }
+      #toast-container .toast {
+        min-width: 0;
+        width: 100%;
+        font-size: 1em;
+        padding: 12px 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -126,13 +212,13 @@
     <button id="loadBtn" class="menu-button">Load Game</button>
     <button id="resetBtn" class="menu-button">Reset Game</button>
   </div>
-
   <main>
     <h1>Generators Game</h1>
-    <div id="energy">Total Energy: 10</div>
-    <div id="eps">EPS: 0</div>
-    <div id="generators">Generators: 0</div>
-
+    <div class="main-stats">
+      <div id="energy">Total Energy: 10</div>
+      <div id="eps">EPS: 0</div>
+      <div id="generators">Generators: 0</div>
+    </div>
     <section id="generators-section">
       <div class="generator-row">
         <span id="generatorsCoal" class="generator-label">Coal Generators: 0 / 100</span>
@@ -169,7 +255,6 @@
         <button id="upgradeEmerald" class="upgrade-btn">Upgrade (Cost: 1k)</button>
         <button id="maxEmerald" class="max-btn">Max+ (Cost: 1k) [+10]</button>
       </div>
-      <!-- DIAMOND GENERATOR (Super expensive and powerful) -->
       <div class="generator-row">
         <span id="generatorsDiamond" class="generator-label">Diamond Generators: 0 / 1</span>
         <button id="generateDiamond" class="generator-btn">Buy Diamond Generator (Cost: 1Qa)</button>
