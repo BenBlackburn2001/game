@@ -11,7 +11,7 @@
       gap: 8px;
       margin-bottom: 8px;
     }
-    .generator-btn, .upgrade-btn, .sell-btn {
+    .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
       margin-left: 4px;
       margin-right: 4px;
       padding: 6px 14px;
@@ -23,7 +23,7 @@
       color: #fff;
       transition: background 0.2s;
     }
-    .generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled {
+    .generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled, .max-btn:disabled {
       background: #222;
       color: #888;
       cursor: not-allowed;
@@ -32,6 +32,8 @@
     .upgrade-btn:disabled { background: #123a5e; }
     .sell-btn { background: #c62828; }
     .sell-btn:disabled { background: #5e1212; }
+    .max-btn { background: #388e3c; }
+    .max-btn:disabled { background: #1b3c1b; color: #888; cursor: not-allowed; }
     #toast-container {
       position: fixed;
       bottom: 24px;
@@ -89,39 +91,35 @@
         <button id="generateCoal" class="generator-btn">Buy Coal Generator (Cost: 10)</button>
         <button id="sellCoal" class="sell-btn">Sell</button>
         <button id="upgradeCoal" class="upgrade-btn">Upgrade (Cost: 1k)</button>
+        <button id="maxCoal" class="max-btn">Max+ (Cost: 1k) [+100]</button>
       </div>
       <div class="generator-row">
         <span id="generatorsIron" class="generator-label">Iron Generators: 0 / 100</span>
         <button id="generateIron" class="generator-btn">Buy Iron Generator (Cost: 1k)</button>
         <button id="sellIron" class="sell-btn">Sell</button>
         <button id="upgradeIron" class="upgrade-btn">Upgrade (Cost: 1k)</button>
+        <button id="maxIron" class="max-btn">Max+ (Cost: 1k) [+100]</button>
       </div>
       <div class="generator-row">
         <span id="generatorsGold" class="generator-label">Gold Generators: 0 / 50</span>
         <button id="generateGold" class="generator-btn">Buy Gold Generator (Cost: 3k)</button>
         <button id="sellGold" class="sell-btn">Sell</button>
         <button id="upgradeGold" class="upgrade-btn">Upgrade (Cost: 1k)</button>
+        <button id="maxGold" class="max-btn">Max+ (Cost: 1k) [+50]</button>
       </div>
       <div class="generator-row">
         <span id="generatorsRuby" class="generator-label">Ruby Generators: 0 / 25</span>
         <button id="generateRuby" class="generator-btn">Buy Ruby Generator (Cost: 6k)</button>
         <button id="sellRuby" class="sell-btn">Sell</button>
         <button id="upgradeRuby" class="upgrade-btn">Upgrade (Cost: 1k)</button>
+        <button id="maxRuby" class="max-btn">Max+ (Cost: 1k) [+25]</button>
       </div>
       <div class="generator-row">
         <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0 / 10</span>
         <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
         <button id="sellEmerald" class="sell-btn">Sell</button>
         <button id="upgradeEmerald" class="upgrade-btn">Upgrade (Cost: 1k)</button>
-      </div>
-    </section>
-
-    <section id="upgrades-section" style="margin-top: 20px;">
-      <h2>Upgrades</h2>
-      <div class="upgrade-row">
-        <button id="upgradeMaxGen" class="upgrade-btn">
-          Increase Max Generators by 100 (Cost: 1000)
-        </button>
+        <button id="maxEmerald" class="max-btn">Max+ (Cost: 1k) [+10]</button>
       </div>
     </section>
   </main>
@@ -168,13 +166,22 @@
     emerald: { level: 0, cost: new BigNumber(1000) }
   };
 
+  // --- Max Upgrade State ---
+  const generatorMaxUpgrades = {
+    coal:    { cost: new BigNumber(1000), increment: 100 },
+    iron:    { cost: new BigNumber(1000), increment: 100 },
+    gold:    { cost: new BigNumber(1000), increment: 100 },
+    ruby:    { cost: new BigNumber(1000), increment: 100 },
+    emerald: { cost: new BigNumber(1000), increment: 100 }
+  };
+
   // --- Generator Config ---
   const generatorConfig = {
-    coal:    { baseCost: new BigNumber(10),    power: () => 1 + generatorUpgrades.coal.level,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal, upgrade: "upgradeCoal", sell: "sellCoal" },
-    iron:    { baseCost: new BigNumber(1000),  power: () => 3 + generatorUpgrades.iron.level,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron, upgrade: "upgradeIron", sell: "sellIron" },
-    gold:    { baseCost: new BigNumber(3000),  power: () => 8 + generatorUpgrades.gold.level,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold, upgrade: "upgradeGold", sell: "sellGold" },
-    ruby:    { baseCost: new BigNumber(6000),  power: () => 20 + generatorUpgrades.ruby.level, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby, upgrade: "upgradeRuby", sell: "sellRuby" },
-    emerald: { baseCost: new BigNumber(9000),  power: () => 50 + generatorUpgrades.emerald.level, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald" }
+    coal:    { baseCost: new BigNumber(10),    power: () => 1 + generatorUpgrades.coal.level,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal, upgrade: "upgradeCoal", sell: "sellCoal", maxBtn: "maxCoal" },
+    iron:    { baseCost: new BigNumber(1000),  power: () => 3 + generatorUpgrades.iron.level,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron, upgrade: "upgradeIron", sell: "sellIron", maxBtn: "maxIron" },
+    gold:    { baseCost: new BigNumber(3000),  power: () => 8 + generatorUpgrades.gold.level,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold, upgrade: "upgradeGold", sell: "sellGold", maxBtn: "maxGold" },
+    ruby:    { baseCost: new BigNumber(6000),  power: () => 20 + generatorUpgrades.ruby.level, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby, upgrade: "upgradeRuby", sell: "sellRuby", maxBtn: "maxRuby" },
+    emerald: { baseCost: new BigNumber(9000),  power: () => 50 + generatorUpgrades.emerald.level, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald", maxBtn: "maxEmerald" }
   };
 
   // --- Helpers ---
@@ -224,8 +231,14 @@
       // Upgrade info
       const upgrade = generatorUpgrades[key];
       const upgradeBtn = document.getElementById(gen.upgrade);
-      upgradeBtn.textContent = `Upgrade (Cost: ${formatNumber(upgrade.cost)}) [+${upgrade.level}]`;
+      upgradeBtn.textContent = `Upgrade (Cost: ${formatNumber(upgrade.cost)}) [+${gen.power()}]`;
       upgradeBtn.disabled = !getEnergy().gte(upgrade.cost) || owned.lte(0);
+
+      // Max upgrade info
+      const maxBtn = document.getElementById(gen.maxBtn);
+      const maxUpgrade = generatorMaxUpgrades[key];
+      maxBtn.textContent = `Max+ (Cost: ${formatNumber(maxUpgrade.cost)}) [+${gen.max}]`;
+      maxBtn.disabled = !getEnergy().gte(maxUpgrade.cost);
 
       // Sell info
       const sellBtn = document.getElementById(gen.sell);
@@ -245,8 +258,6 @@
       btn.textContent = `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(cost)})`;
       btn.disabled = !getEnergy().gte(cost);
     }
-
-    document.getElementById("upgradeMaxGen").disabled = !getEnergy().gte(1000);
   }
 
   // --- Purchase Logic ---
@@ -294,15 +305,15 @@
     }
   }
 
-  // --- Upgrade Max Generators ---
-  function upgradeMaxGenerators() {
-    const upgradeCost = new BigNumber(1000);
-    if (getEnergy().gte(upgradeCost)) {
-      setEnergy(getEnergy().minus(upgradeCost));
-      for (const key in generatorConfig) {
-        generatorConfig[key].max += 100;
-        gameData.generatorMax[key] = generatorConfig[key].max;
-      }
+  // --- Max Upgrade Logic (per generator) ---
+  function upgradeMaxGenerator(key) {
+    const gen = generatorConfig[key];
+    const maxUpgrade = generatorMaxUpgrades[key];
+    if (getEnergy().gte(maxUpgrade.cost)) {
+      setEnergy(getEnergy().minus(maxUpgrade.cost));
+      gen.max += maxUpgrade.increment;
+      gameData.generatorMax[key] = gen.max;
+      maxUpgrade.cost = maxUpgrade.cost.times(2); // Double cost each time
       updateAllUI();
     }
   }
@@ -322,6 +333,13 @@
       saveCopy.generatorUpgrades[key] = {
         level: generatorUpgrades[key].level,
         cost: generatorUpgrades[key].cost.toString()
+      };
+    }
+    // Save max upgrades
+    saveCopy.generatorMaxUpgrades = {};
+    for (const key in generatorMaxUpgrades) {
+      saveCopy.generatorMaxUpgrades[key] = {
+        cost: generatorMaxUpgrades[key].cost.toString()
       };
     }
 
@@ -351,6 +369,13 @@
           generatorUpgrades[key].cost = new BigNumber(saved.generatorUpgrades[key].cost);
         }
       }
+      // Load max upgrades
+      if (saved.generatorMaxUpgrades) {
+        for (const key in saved.generatorMaxUpgrades) {
+          if (saved.generatorMaxUpgrades[key].cost)
+            generatorMaxUpgrades[key].cost = new BigNumber(saved.generatorMaxUpgrades[key].cost);
+        }
+      }
       recalculateEPS();
       updateAllUI();
       showToast('Game loaded!');
@@ -369,6 +394,10 @@
       for (const key in generatorUpgrades) {
         generatorUpgrades[key].level = 0;
         generatorUpgrades[key].cost = new BigNumber(1000);
+      }
+      // Reset max upgrades
+      for (const key in generatorMaxUpgrades) {
+        generatorMaxUpgrades[key].cost = new BigNumber(1000);
       }
       if (username) {
         localStorage.removeItem(username);
@@ -390,9 +419,9 @@
       document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
       document.getElementById(generatorConfig[key].sell).onclick = () => sellGenerator(key);
       document.getElementById(generatorConfig[key].upgrade).onclick = () => upgradeGenerator(key);
+      document.getElementById(generatorConfig[key].maxBtn).onclick = () => upgradeMaxGenerator(key);
     }
 
-    document.getElementById('upgradeMaxGen').onclick = upgradeMaxGenerators;
     document.getElementById('saveBtn').onclick = saveGame;
     document.getElementById('loadBtn').onclick = loadGame;
     document.getElementById('resetBtn').onclick = resetGame;
