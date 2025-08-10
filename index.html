@@ -6,56 +6,104 @@
   <link rel="stylesheet" href="style.css">
   <style>
     .generator-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
-      margin-left: 4px;
-      margin-right: 4px;
-      padding: 6px 14px;
-      border-radius: 5px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      background: #444;
-      color: #fff;
-      transition: background 0.2s;
-    }
-    .generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled, .max-btn:disabled {
-      background: #222;
-      color: #888;
-      cursor: not-allowed;
-    }
-    .upgrade-btn { background: #1976d2; }
-    .upgrade-btn:disabled { background: #123a5e; }
-    .sell-btn { background: #c62828; }
-    .sell-btn:disabled { background: #5e1212; }
-    .max-btn { background: #388e3c; }
-    .max-btn:disabled { background: #1b3c1b; color: #888; cursor: not-allowed; }
-    #toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 9999;
-    }
-    #toast-container .toast {
-      background: #23272b;
-      color: #fff;
-      padding: 16px 28px;
-      margin-top: 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 12px #0008;
-      font-size: 1.1em;
-      opacity: 0.95;
-      animation: toast-in 0.3s;
-      min-width: 180px;
-    }
-    @keyframes toast-in {
-      from { transform: translateY(40px); opacity: 0; }
-      to   { transform: translateY(0);    opacity: 0.95; }
-    }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.generator-label {
+  min-width: 140px;
+  font-size: 1em;
+  word-break: break-word;
+}
+.generator-btn, .upgrade-btn, .sell-btn, .max-btn {
+  margin-left: 4px;
+  margin-right: 4px;
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  background: #444;
+  color: #fff;
+  transition: background 0.2s;
+  font-size: 1em;
+  min-width: 120px;
+  margin-bottom: 4px;
+}
+.generator-btn:disabled, .upgrade-btn:disabled, .sell-btn:disabled, .max-btn:disabled {
+  background: #222;
+  color: #888;
+  cursor: not-allowed;
+}
+.upgrade-btn { background: #1976d2; }
+.upgrade-btn:disabled { background: #123a5e; }
+.sell-btn { background: #c62828; }
+.sell-btn:disabled { background: #5e1212; }
+.max-btn { background: #388e3c; }
+.max-btn:disabled { background: #1b3c1b; color: #888; cursor: not-allowed; }
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+}
+#toast-container .toast {
+  background: #23272b;
+  color: #fff;
+  padding: 16px 28px;
+  margin-top: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px #0008;
+  font-size: 1.1em;
+  opacity: 0.95;
+  animation: toast-in 0.3s;
+  min-width: 180px;
+}
+@keyframes toast-in {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 0.95; }
+}
+
+/* Responsive styles for phones */
+@media (max-width: 600px) {
+  body {
+    font-size: 16px;
+    padding: 4px;
+  }
+  .generator-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .generator-label {
+    min-width: 0;
+    font-size: 1em;
+    margin-bottom: 2px;
+  }
+  .generator-btn, .upgrade-btn, .sell-btn, .max-btn {
+    min-width: 90vw;
+    width: 100%;
+    font-size: 1em;
+    margin: 2px 0;
+    padding: 10px 0;
+  }
+  #toast-container {
+    right: 4vw;
+    left: 4vw;
+    bottom: 12px;
+  }
+  #toast-container .toast {
+    min-width: 0;
+    width: 100%;
+    font-size: 1em;
+    padding: 12px 8px;
+  }
+  main {
+    padding: 0 2vw;
+  }
+}
   </style>
 </head>
 <body>
