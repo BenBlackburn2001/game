@@ -202,6 +202,15 @@
     return base.times(amount); // flat cost
   }
 
+  // --- EPS Calculation ---
+  function recalculateEPS() {
+    let total = new BigNumber(0);
+    for (const key in generatorConfig) {
+      total = total.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power()));
+    }
+    setEPS(total);
+  }
+
   // --- UI Update ---
   function updateAllUI() {
     document.getElementById('energy').textContent = `Total Energy: ${formatNumber(getEnergy())}`;
@@ -252,9 +261,9 @@
 
     if (getEnergy().gte(cost)) {
       setEnergy(getEnergy().minus(cost));
-      setEPS(getEPS().plus(new BigNumber(gen.power()).times(actualBuyAmount)));
       setGenCount(gen.key, owned.plus(actualBuyAmount));
       setTotalGenerators(getTotalGenerators().plus(actualBuyAmount));
+      recalculateEPS();
       updateAllUI();
     }
   }
@@ -267,7 +276,7 @@
     setGenCount(gen.key, owned.minus(1));
     setTotalGenerators(getTotalGenerators().minus(1));
     setEnergy(getEnergy().plus(gen.baseCost.times(0.5)));
-    setEPS(getEPS().minus(new BigNumber(gen.power())));
+    recalculateEPS();
     updateAllUI();
   }
 
@@ -280,6 +289,7 @@
       setEnergy(getEnergy().minus(upgrade.cost));
       upgrade.level += 1;
       upgrade.cost = upgrade.cost.times(2); // Double cost each time
+      recalculateEPS();
       updateAllUI();
     }
   }
@@ -341,6 +351,7 @@
           generatorUpgrades[key].cost = new BigNumber(saved.generatorUpgrades[key].cost);
         }
       }
+      recalculateEPS();
       updateAllUI();
       showToast('Game loaded!');
     } else {
@@ -362,6 +373,7 @@
       if (username) {
         localStorage.removeItem(username);
       }
+      recalculateEPS();
       updateAllUI();
       showToast("Game reset to original state!");
     }
@@ -392,6 +404,7 @@
       username = lastUser;
       loadGame();
     } else {
+      recalculateEPS();
       updateAllUI();
     }
 
@@ -402,6 +415,7 @@
         totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power()));
       }
       setEnergy(getEnergy().plus(totalAdd));
+      recalculateEPS();
       updateAllUI();
     }, 1000);
   };
