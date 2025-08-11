@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,6 @@
   <title>Generator Game</title>
   <link href="https://fonts.googleapis.com/css?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  
 </head>
 <body>
   <div id="purchase-multiplier-container">
@@ -26,6 +26,8 @@
     <button id="saveBtn" class="menu-button">Save Game</button>
     <button id="loadBtn" class="menu-button">Load Game</button>
     <button id="resetBtn" class="menu-button">Reset Game</button>
+    <button id="storeBtn" class="menu-button">Store</button>
+    <button id="codeBtn" class="menu-button">Enter Code</button>
   </div>
   <main>
     <h1>Generators Game</h1>
@@ -34,54 +36,60 @@
       <div id="eps">EPS: 0</div>
       <div id="generators">Generators: 0</div>
     </div>
-    <section id="generators-section">
-      <div class="generator-row">
-        <span id="generatorsCoal" class="generator-label">Coal Generators: 0 / 100</span>
-        <button id="generateCoal" class="generator-btn">Buy Coal Generator (Cost: 10)</button>
-        <button id="sellCoal" class="sell-btn">Sell</button>
-        <button id="upgradeCoal" class="upgrade-btn">Upgrade (Cost: 1k)</button>
-        <button id="maxCoal" class="max-btn">Max+ (Cost: 1k) [+100]</button>
+    <div id="tier-selector" class="tier-selector">
+      <button class="tier-btn active" data-tier="1">Tier 1</button>
+      <button class="tier-btn" data-tier="2">Tier 2</button>
+      <button class="tier-btn" data-tier="3">Tier 3</button>
+      <button class="tier-btn" data-tier="4">Tier 4</button>
+      <button class="tier-btn" data-tier="5">Tier 5</button>
+    </div>
+    <section id="generators-section"></section>
+    <!-- Store Modal -->
+    <!-- Code Input Modal -->
+    <div id="code-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(24,26,27,0.96); z-index:10001; align-items:center; justify-content:center;">
+      <div style="background:#23272b; border-radius:16px; box-shadow:0 4px 32px #000a; padding:32px 24px; max-width:400px; width:90vw; margin:auto; position:relative;">
+        <button id="closeCodeBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#ffb300; font-size:1.5em; cursor:pointer;">&times;</button>
+        <h2 style="color:#ffb300; text-align:center; margin-bottom:24px; font-family:'Orbitron',monospace;">Redeem Code</h2>
+        <input id="codeInput" type="text" placeholder="Enter code here" style="width:100%; padding:10px; border-radius:6px; border:2px solid #444950; font-size:1em; margin-bottom:16px; background:#181a1b; color:#fff;">
+        <button id="redeemCodeBtn" class="menu-button" style="width:100%;">Redeem</button>
+        <div id="codeResultMsg" style="color:#69f0ae; margin-top:8px; display:none;"></div>
       </div>
-      <div class="generator-row">
-        <span id="generatorsIron" class="generator-label">Iron Generators: 0 / 100</span>
-        <button id="generateIron" class="generator-btn">Buy Iron Generator (Cost: 1k)</button>
-        <button id="sellIron" class="sell-btn">Sell</button>
-        <button id="upgradeIron" class="upgrade-btn">Upgrade (Cost: 1k)</button>
-        <button id="maxIron" class="max-btn">Max+ (Cost: 1k) [+100]</button>
+    </div>
+    <div id="store-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(24,26,27,0.96); z-index:10000; align-items:center; justify-content:center;">
+      <div style="background:#23272b; border-radius:16px; box-shadow:0 4px 32px #000a; padding:32px 24px; max-width:400px; width:90vw; margin:auto; position:relative;">
+        <button id="closeStoreBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#ffb300; font-size:1.5em; cursor:pointer;">&times;</button>
+        <h2 style="color:#ffb300; text-align:center; margin-bottom:24px; font-family:'Orbitron',monospace;">Store</h2>
+        <div id="store-items">
+          <div style="margin-bottom:18px; padding:12px; background:#181a1b; border-radius:8px;">
+            <div style="font-weight:bold; color:#fff;">24h 2x Energy Output</div>
+            <div style="color:#ffb300; margin-bottom:8px;">Cost: 100,000 Energy</div>
+            <button id="buy-boost-2x" class="menu-button" style="width:100%;">Buy Boost</button>
+            <div id="boost-active-msg" style="color:#69f0ae; margin-top:8px; display:none;">Active!</div>
+          </div>
+          <div style="margin-bottom:18px; padding:12px; background:#181a1b; border-radius:8px;">
+            <div style="font-weight:bold; color:#fff;">Permanent 2x Coal Generator Output</div>
+            <div style="color:#ffb300; margin-bottom:8px;">Cost: 1,000,000 Energy</div>
+            <button id="buy-perm-2x-coal" class="menu-button" style="width:100%;">Buy Permanent Boost</button>
+            <div id="perm-coal-active-msg" style="color:#69f0ae; margin-top:8px; display:none;">Purchased!</div>
+          </div>
+        </div>
       </div>
-      <div class="generator-row">
-        <span id="generatorsGold" class="generator-label">Gold Generators: 0 / 50</span>
-        <button id="generateGold" class="generator-btn">Buy Gold Generator (Cost: 3k)</button>
-        <button id="sellGold" class="sell-btn">Sell</button>
-        <button id="upgradeGold" class="upgrade-btn">Upgrade (Cost: 1k)</button>
-        <button id="maxGold" class="max-btn">Max+ (Cost: 1k) [+50]</button>
-      </div>
-      <div class="generator-row">
-        <span id="generatorsRuby" class="generator-label">Ruby Generators: 0 / 25</span>
-        <button id="generateRuby" class="generator-btn">Buy Ruby Generator (Cost: 6k)</button>
-        <button id="sellRuby" class="sell-btn">Sell</button>
-        <button id="upgradeRuby" class="upgrade-btn">Upgrade (Cost: 1k)</button>
-        <button id="maxRuby" class="max-btn">Max+ (Cost: 1k) [+25]</button>
-      </div>
-      <div class="generator-row">
-        <span id="generatorsEmerald" class="generator-label">Emerald Generators: 0 / 10</span>
-        <button id="generateEmerald" class="generator-btn">Buy Emerald Generator (Cost: 9k)</button>
-        <button id="sellEmerald" class="sell-btn">Sell</button>
-        <button id="upgradeEmerald" class="upgrade-btn">Upgrade (Cost: 1k)</button>
-        <button id="maxEmerald" class="max-btn">Max+ (Cost: 1k) [+10]</button>
-      </div>
-      <div class="generator-row">
-        <span id="generatorsDiamond" class="generator-label">Diamond Generators: 0 / 1</span>
-        <button id="generateDiamond" class="generator-btn">Buy Diamond Generator (Cost: 1Qa)</button>
-        <button id="sellDiamond" class="sell-btn">Sell</button>
-        <button id="upgradeDiamond" class="upgrade-btn">Upgrade (Cost: 1Qa)</button>
-        <button id="maxDiamond" class="max-btn">Max+ (Cost: 1Qa) [+1]</button>
-      </div>
-    </section>
+    </div>
   </main>
   <div id="toast-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
 <script>
+// ...existing code...
+</script>
+</body>
+
+<script>
+
+  // --- Store Boost State ---
+  let boost2xActive = false;
+  let boost2xEndTime = 0;
+  let perm2xCoal = false;
+  let perm2xIron = false; // New booster for Iron, code-only
   // --- Toast Notification ---
   function showToast(message) {
     const container = document.getElementById('toast-container');
@@ -107,7 +115,32 @@
     generatorsRuby: "0",
     generatorsEmerald: "0",
     generatorsDiamond: "0",
-    generatorMax: { coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10, diamond: 1 }
+    generatorsPlatinum: "0",
+    generatorsUranium: "0",
+    generatorsSapphire: "0",
+    generatorsObsidian: "0",
+    generatorsMythril: "0",
+    generatorsAmethyst: "0",
+    generatorsTopaz: "0",
+    generatorsOnyx: "0",
+    generatorsCrystal: "0",
+    generatorsVoid: "0",
+    generatorsNebula: "0",
+    generatorsQuantum: "0",
+    generatorsSingularity: "0",
+    generatorsEternity: "0",
+    generatorsOmega: "0",
+    generatorsAlpha: "0",
+    generatorsZeta: "0",
+    generatorsLambda: "0",
+    generatorsSigma: "0",
+    generatorMax: {
+      coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10, diamond: 1,
+      platinum: 1, uranium: 1, sapphire: 1, obsidian: 1,
+      mythril: 1, amethyst: 1, topaz: 1, onyx: 1, crystal: 1,
+      void: 1, nebula: 1, quantum: 1, singularity: 1, eternity: 1,
+      omega: 1, alpha: 1, zeta: 1, lambda: 1, sigma: 1
+    }
   };
 
   let username = "";
@@ -116,32 +149,104 @@
 
   // --- Upgrades State ---
   const generatorUpgrades = {
-    coal:    { level: 0, cost: new BigNumber(1000) },
-    iron:    { level: 0, cost: new BigNumber(1000) },
-    gold:    { level: 0, cost: new BigNumber(1000) },
-    ruby:    { level: 0, cost: new BigNumber(1000) },
-    emerald: { level: 0, cost: new BigNumber(1000) },
-    diamond: { level: 0, cost: new BigNumber("1e15") } // 1Qa
+    // Tier 1 (affordable, smooth scaling)
+    coal:    { level: 0, cost: new BigNumber(20) },
+    iron:    { level: 0, cost: new BigNumber(200) },
+    gold:    { level: 0, cost: new BigNumber(600) },
+    ruby:    { level: 0, cost: new BigNumber(1800) },
+    emerald: { level: 0, cost: new BigNumber(4000) },
+    // Tier 2 (big jump, but not unreachable)
+    diamond:   { level: 0, cost: new BigNumber("1e6") },
+    platinum:  { level: 0, cost: new BigNumber("5e6") },
+    uranium:   { level: 0, cost: new BigNumber("2e7") },
+    sapphire:  { level: 0, cost: new BigNumber("1e8") },
+    obsidian:  { level: 0, cost: new BigNumber("5e8") },
+    // Tier 3
+    mythril:   { level: 0, cost: new BigNumber("1e10") },
+    amethyst:  { level: 0, cost: new BigNumber("5e10") },
+    topaz:     { level: 0, cost: new BigNumber("2e11") },
+    onyx:      { level: 0, cost: new BigNumber("1e12") },
+    crystal:   { level: 0, cost: new BigNumber("5e12") },
+    // Tier 4
+    void:        { level: 0, cost: new BigNumber("1e14") },
+    nebula:      { level: 0, cost: new BigNumber("5e14") },
+    quantum:     { level: 0, cost: new BigNumber("2e15") },
+    singularity: { level: 0, cost: new BigNumber("1e16") },
+    eternity:    { level: 0, cost: new BigNumber("5e16") },
+    // Tier 5
+    omega:   { level: 0, cost: new BigNumber("1e18") },
+    alpha:   { level: 0, cost: new BigNumber("5e18") },
+    zeta:    { level: 0, cost: new BigNumber("2e19") },
+    lambda:  { level: 0, cost: new BigNumber("1e20") },
+    sigma:   { level: 0, cost: new BigNumber("5e20") }
   };
 
   // --- Max Upgrade State ---
   const generatorMaxUpgrades = {
+    // Tier 1
     coal:    { cost: new BigNumber(1000), increment: 100 },
     iron:    { cost: new BigNumber(1000), increment: 100 },
     gold:    { cost: new BigNumber(1000), increment: 100 },
     ruby:    { cost: new BigNumber(1000), increment: 100 },
     emerald: { cost: new BigNumber(1000), increment: 100 },
-    diamond: { cost: new BigNumber("1e15"), increment: 1 }
+    // Tier 2
+    diamond: { cost: new BigNumber("1e15"), increment: 1 },
+    platinum: { cost: new BigNumber("1e18"), increment: 1 },
+    uranium: { cost: new BigNumber("1e21"), increment: 1 },
+    sapphire: { cost: new BigNumber("1e24"), increment: 1 },
+    obsidian: { cost: new BigNumber("1e27"), increment: 1 },
+    // Tier 3
+    mythril: { cost: new BigNumber("1e30"), increment: 1 },
+    amethyst: { cost: new BigNumber("1e33"), increment: 1 },
+    topaz: { cost: new BigNumber("1e36"), increment: 1 },
+    onyx: { cost: new BigNumber("1e39"), increment: 1 },
+    crystal: { cost: new BigNumber("1e42"), increment: 1 },
+    // Tier 4
+    void: { cost: new BigNumber("1e45"), increment: 1 },
+    nebula: { cost: new BigNumber("1e48"), increment: 1 },
+    quantum: { cost: new BigNumber("1e51"), increment: 1 },
+    singularity: { cost: new BigNumber("1e54"), increment: 1 },
+    eternity: { cost: new BigNumber("1e57"), increment: 1 },
+    // Tier 5
+    omega: { cost: new BigNumber("1e60"), increment: 1 },
+    alpha: { cost: new BigNumber("1e63"), increment: 1 },
+    zeta: { cost: new BigNumber("1e66"), increment: 1 },
+    lambda: { cost: new BigNumber("1e69"), increment: 1 },
+    sigma: { cost: new BigNumber("1e72"), increment: 1 }
   };
 
-  // --- Generator Config ---
+  // --- Generator Config (with tier property) ---
   const generatorConfig = {
-    coal:    { baseCost: new BigNumber(10),    power: () => 1 + generatorUpgrades.coal.level,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal, upgrade: "upgradeCoal", sell: "sellCoal", maxBtn: "maxCoal" },
-    iron:    { baseCost: new BigNumber(1000),  power: () => 3 + generatorUpgrades.iron.level,  key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron, upgrade: "upgradeIron", sell: "sellIron", maxBtn: "maxIron" },
-    gold:    { baseCost: new BigNumber(3000),  power: () => 8 + generatorUpgrades.gold.level,  key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold, upgrade: "upgradeGold", sell: "sellGold", maxBtn: "maxGold" },
-    ruby:    { baseCost: new BigNumber(6000),  power: () => 20 + generatorUpgrades.ruby.level, key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby, upgrade: "upgradeRuby", sell: "sellRuby", maxBtn: "maxRuby" },
-    emerald: { baseCost: new BigNumber(9000),  power: () => 50 + generatorUpgrades.emerald.level, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald", maxBtn: "maxEmerald" },
-    diamond: { baseCost: new BigNumber("1e15"), power: () => 1e8 + generatorUpgrades.diamond.level * 1e8, key: "generatorsDiamond", label: "Diamond Generators", button: "generateDiamond", span: "generatorsDiamond", max: defaultGameData.generatorMax.diamond, upgrade: "upgradeDiamond", sell: "sellDiamond", maxBtn: "maxDiamond" }
+    // Tier 1
+    coal:    { tier: 1, baseCost: new BigNumber(10),    power: () => 1 + generatorUpgrades.coal.level * 1.5,  key: "generatorsCoal",    label: "Coal Generators",    button: "generateCoal",    span: "generatorsCoal",    max: defaultGameData.generatorMax.coal, upgrade: "upgradeCoal", sell: "sellCoal", maxBtn: "maxCoal" },
+    iron:    { tier: 1, baseCost: new BigNumber(100),   power: () => 5 + generatorUpgrades.iron.level * 2,    key: "generatorsIron",    label: "Iron Generators",    button: "generateIron",    span: "generatorsIron",    max: defaultGameData.generatorMax.iron, upgrade: "upgradeIron", sell: "sellIron", maxBtn: "maxIron" },
+    gold:    { tier: 1, baseCost: new BigNumber(300),   power: () => 15 + generatorUpgrades.gold.level * 3,   key: "generatorsGold",    label: "Gold Generators",    button: "generateGold",    span: "generatorsGold",    max: defaultGameData.generatorMax.gold, upgrade: "upgradeGold", sell: "sellGold", maxBtn: "maxGold" },
+    ruby:    { tier: 1, baseCost: new BigNumber(900),   power: () => 40 + generatorUpgrades.ruby.level * 4,   key: "generatorsRuby",    label: "Ruby Generators",    button: "generateRuby",    span: "generatorsRuby",    max: defaultGameData.generatorMax.ruby, upgrade: "upgradeRuby", sell: "sellRuby", maxBtn: "maxRuby" },
+    emerald: { tier: 1, baseCost: new BigNumber(2000),  power: () => 100 + generatorUpgrades.emerald.level * 5, key: "generatorsEmerald", label: "Emerald Generators", button: "generateEmerald", span: "generatorsEmerald", max: defaultGameData.generatorMax.emerald, upgrade: "upgradeEmerald", sell: "sellEmerald", maxBtn: "maxEmerald" },
+    // Tier 2
+    diamond:   { tier: 2, baseCost: new BigNumber("1e5"),  power: () => 1e4 + generatorUpgrades.diamond.level * 1e4, key: "generatorsDiamond", label: "Diamond Generators", button: "generateDiamond", span: "generatorsDiamond", max: defaultGameData.generatorMax.diamond, upgrade: "upgradeDiamond", sell: "sellDiamond", maxBtn: "maxDiamond" },
+    platinum:  { tier: 2, baseCost: new BigNumber("5e5"),  power: () => 5e4 + generatorUpgrades.platinum.level * 2e4, key: "generatorsPlatinum", label: "Platinum Generators", button: "generatePlatinum", span: "generatorsPlatinum", max: 1, upgrade: "upgradePlatinum", sell: "sellPlatinum", maxBtn: "maxPlatinum" },
+    uranium:   { tier: 2, baseCost: new BigNumber("2e6"),  power: () => 2e5 + generatorUpgrades.uranium.level * 5e4, key: "generatorsUranium", label: "Uranium Generators", button: "generateUranium", span: "generatorsUranium", max: 1, upgrade: "upgradeUranium", sell: "sellUranium", maxBtn: "maxUranium" },
+    sapphire:  { tier: 2, baseCost: new BigNumber("1e7"),  power: () => 1e6 + generatorUpgrades.sapphire.level * 1e5, key: "generatorsSapphire", label: "Sapphire Generators", button: "generateSapphire", span: "generatorsSapphire", max: 1, upgrade: "upgradeSapphire", sell: "sellSapphire", maxBtn: "maxSapphire" },
+    obsidian:  { tier: 2, baseCost: new BigNumber("5e7"),  power: () => 5e6 + generatorUpgrades.obsidian.level * 2e5, key: "generatorsObsidian", label: "Obsidian Generators", button: "generateObsidian", span: "generatorsObsidian", max: 1, upgrade: "upgradeObsidian", sell: "sellObsidian", maxBtn: "maxObsidian" },
+    // Tier 3
+    mythril:   { tier: 3, baseCost: new BigNumber("1e9"),  power: () => 1e8 + generatorUpgrades.mythril.level * 1e7, key: "generatorsMythril", label: "Mythril Generators", button: "generateMythril", span: "generatorsMythril", max: 1, upgrade: "upgradeMythril", sell: "sellMythril", maxBtn: "maxMythril" },
+    amethyst:  { tier: 3, baseCost: new BigNumber("5e9"),  power: () => 5e8 + generatorUpgrades.amethyst.level * 2e7, key: "generatorsAmethyst", label: "Amethyst Generators", button: "generateAmethyst", span: "generatorsAmethyst", max: 1, upgrade: "upgradeAmethyst", sell: "sellAmethyst", maxBtn: "maxAmethyst" },
+    topaz:     { tier: 3, baseCost: new BigNumber("2e10"), power: () => 2e9 + generatorUpgrades.topaz.level * 5e7, key: "generatorsTopaz", label: "Topaz Generators", button: "generateTopaz", span: "generatorsTopaz", max: 1, upgrade: "upgradeTopaz", sell: "sellTopaz", maxBtn: "maxTopaz" },
+    onyx:      { tier: 3, baseCost: new BigNumber("1e11"), power: () => 1e10 + generatorUpgrades.onyx.level * 1e8, key: "generatorsOnyx", label: "Onyx Generators", button: "generateOnyx", span: "generatorsOnyx", max: 1, upgrade: "upgradeOnyx", sell: "sellOnyx", maxBtn: "maxOnyx" },
+    crystal:   { tier: 3, baseCost: new BigNumber("5e11"), power: () => 5e10 + generatorUpgrades.crystal.level * 2e8, key: "generatorsCrystal", label: "Crystal Generators", button: "generateCrystal", span: "generatorsCrystal", max: 1, upgrade: "upgradeCrystal", sell: "sellCrystal", maxBtn: "maxCrystal" },
+    // Tier 4
+    void:        { tier: 4, baseCost: new BigNumber("1e13"), power: () => 1e12 + generatorUpgrades.void.level * 1e10, key: "generatorsVoid", label: "Void Generators", button: "generateVoid", span: "generatorsVoid", max: 1, upgrade: "upgradeVoid", sell: "sellVoid", maxBtn: "maxVoid" },
+    nebula:      { tier: 4, baseCost: new BigNumber("5e13"), power: () => 5e12 + generatorUpgrades.nebula.level * 2e10, key: "generatorsNebula", label: "Nebula Generators", button: "generateNebula", span: "generatorsNebula", max: 1, upgrade: "upgradeNebula", sell: "sellNebula", maxBtn: "maxNebula" },
+    quantum:     { tier: 4, baseCost: new BigNumber("2e14"), power: () => 2e13 + generatorUpgrades.quantum.level * 5e10, key: "generatorsQuantum", label: "Quantum Generators", button: "generateQuantum", span: "generatorsQuantum", max: 1, upgrade: "upgradeQuantum", sell: "sellQuantum", maxBtn: "maxQuantum" },
+    singularity: { tier: 4, baseCost: new BigNumber("1e15"), power: () => 1e14 + generatorUpgrades.singularity.level * 1e11, key: "generatorsSingularity", label: "Singularity Generators", button: "generateSingularity", span: "generatorsSingularity", max: 1, upgrade: "upgradeSingularity", sell: "sellSingularity", maxBtn: "maxSingularity" },
+    eternity:    { tier: 4, baseCost: new BigNumber("5e15"), power: () => 5e14 + generatorUpgrades.eternity.level * 2e11, key: "generatorsEternity", label: "Eternity Generators", button: "generateEternity", span: "generatorsEternity", max: 1, upgrade: "upgradeEternity", sell: "sellEternity", maxBtn: "maxEternity" },
+    // Tier 5
+    omega:   { tier: 5, baseCost: new BigNumber("1e17"), power: () => 1e16 + generatorUpgrades.omega.level * 1e13, key: "generatorsOmega", label: "Omega Generators", button: "generateOmega", span: "generatorsOmega", max: 1, upgrade: "upgradeOmega", sell: "sellOmega", maxBtn: "maxOmega" },
+    alpha:   { tier: 5, baseCost: new BigNumber("5e17"), power: () => 5e16 + generatorUpgrades.alpha.level * 2e13, key: "generatorsAlpha", label: "Alpha Generators", button: "generateAlpha", span: "generatorsAlpha", max: 1, upgrade: "upgradeAlpha", sell: "sellAlpha", maxBtn: "maxAlpha" },
+    zeta:    { tier: 5, baseCost: new BigNumber("2e18"), power: () => 2e17 + generatorUpgrades.zeta.level * 5e13, key: "generatorsZeta", label: "Zeta Generators", button: "generateZeta", span: "generatorsZeta", max: 1, upgrade: "upgradeZeta", sell: "sellZeta", maxBtn: "maxZeta" },
+    lambda:  { tier: 5, baseCost: new BigNumber("1e19"), power: () => 1e18 + generatorUpgrades.lambda.level * 1e14, key: "generatorsLambda", label: "Lambda Generators", button: "generateLambda", span: "generatorsLambda", max: 1, upgrade: "upgradeLambda", sell: "sellLambda", maxBtn: "maxLambda" },
+    sigma:   { tier: 5, baseCost: new BigNumber("5e19"), power: () => 5e18 + generatorUpgrades.sigma.level * 2e14, key: "generatorsSigma", label: "Sigma Generators", button: "generateSigma", span: "generatorsSigma", max: 1, upgrade: "upgradeSigma", sell: "sellSigma", maxBtn: "maxSigma" }
   };
 
   // --- Helpers ---
@@ -173,8 +278,15 @@
   function recalculateEPS() {
     let total = new BigNumber(0);
     for (const key in generatorConfig) {
-      total = total.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power()));
+      let power = generatorConfig[key].power();
+      // Apply permanent 2x boost for coal
+      if (key === 'coal' && perm2xCoal) power *= 2;
+      // Apply permanent 2x boost for iron (code-only)
+      if (key === 'iron' && perm2xIron) power *= 2;
+      total = total.plus(getGenCount(generatorConfig[key].key).times(power));
     }
+    // Apply 2x boost if active (global)
+    if (boost2xActive) total = total.times(2);
     setEPS(total);
   }
 
@@ -183,8 +295,33 @@
     document.getElementById('energy').textContent = `Total Energy: ${formatNumber(getEnergy())}`;
     document.getElementById('eps').textContent = `EPS: ${formatNumber(getEPS())}`;
     document.getElementById('generators').textContent = `Generators: ${formatNumber(getTotalGenerators())}`;
+    // Store UI
+    const boostMsg = document.getElementById('boost-active-msg');
+    if (boostMsg) {
+      if (boost2xActive) {
+        boostMsg.style.display = '';
+        boostMsg.textContent = `Active! Ends in ${formatBoostTime()}`;
+      } else {
+        boostMsg.style.display = 'none';
+      }
+    }
+    // Permanent coal boost UI
+    const permCoalMsg = document.getElementById('perm-coal-active-msg');
+    const permCoalBtn = document.getElementById('buy-perm-2x-coal');
+    if (permCoalMsg && permCoalBtn) {
+      if (perm2xCoal) {
+        permCoalMsg.style.display = '';
+        permCoalBtn.disabled = true;
+      } else {
+        permCoalMsg.style.display = 'none';
+        permCoalBtn.disabled = false;
+      }
+    }
 
     for (const key in generatorConfig) {
+      // Only update UI for visible generators
+      if (!document.getElementById(generatorConfig[key].span)) continue;
+
       const gen = generatorConfig[key];
       const owned = getGenCount(gen.key);
 
@@ -205,9 +342,9 @@
       maxBtn.textContent = `Max+ (Cost: ${formatNumber(maxUpgrade.cost)}) [+${gen.max}]`;
       maxBtn.disabled = !getEnergy().gte(maxUpgrade.cost);
 
-      // Sell info
-      const sellBtn = document.getElementById(gen.sell);
-      sellBtn.disabled = owned.lte(0);
+  // Sell info
+  const sellBtn = document.getElementById(gen.sell);
+  sellBtn.disabled = owned.lte(1); // Only enable if owned > 0
 
       if (owned.gte(gen.max)) {
         document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(owned)} / ${gen.max}`;
@@ -378,19 +515,55 @@
     }
   }
 
+  // --- Dynamic Generator Rendering ---
+  let currentTier = 1;
+
+  function renderGenerators() {
+    const section = document.getElementById('generators-section');
+    section.innerHTML = '';
+    for (const key in generatorConfig) {
+      if (generatorConfig[key].tier !== currentTier) continue;
+      const gen = generatorConfig[key];
+      const row = document.createElement('div');
+      row.className = 'generator-row';
+      row.innerHTML = `
+        <span id="${gen.span}" class="generator-label">${gen.label}: 0 / ${gen.max}</span>
+        <button id="${gen.button}" class="generator-btn"></button>
+        <button id="${gen.sell}" class="sell-btn">Sell</button>
+        <button id="${gen.upgrade}" class="upgrade-btn"></button>
+        <button id="${gen.maxBtn}" class="max-btn"></button>
+      `;
+      section.appendChild(row);
+    }
+    // Re-bind button events for the new elements
+    for (const key in generatorConfig) {
+      if (generatorConfig[key].tier !== currentTier) continue;
+      document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
+      document.getElementById(generatorConfig[key].sell).onclick = () => sellGenerator(key);
+      document.getElementById(generatorConfig[key].upgrade).onclick = () => upgradeGenerator(key);
+      document.getElementById(generatorConfig[key].maxBtn).onclick = () => upgradeMaxGenerator(key);
+    }
+    updateAllUI();
+  }
+
+  // --- Tier Button Logic ---
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tier-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentTier = parseInt(this.getAttribute('data-tier'), 10);
+        renderGenerators();
+      });
+    });
+  });
+
   // --- Start Game After DOM Loads ---
   window.onload = function() {
     document.getElementById('purchase-multiplier').onchange = function() {
       multiplier = parseInt(this.value, 10);
       updateAllUI();
     };
-
-    for (const key in generatorConfig) {
-      document.getElementById(generatorConfig[key].button).onclick = () => purchaseGenerator(key);
-      document.getElementById(generatorConfig[key].sell).onclick = () => sellGenerator(key);
-      document.getElementById(generatorConfig[key].upgrade).onclick = () => upgradeGenerator(key);
-      document.getElementById(generatorConfig[key].maxBtn).onclick = () => upgradeMaxGenerator(key);
-    }
 
     document.getElementById('saveBtn').onclick = saveGame;
     document.getElementById('loadBtn').onclick = loadGame;
@@ -404,20 +577,143 @@
       loadGame();
     } else {
       recalculateEPS();
-      updateAllUI();
+      renderGenerators();
     }
+
+    // Store menu logic
+    document.getElementById('storeBtn').onclick = function() {
+      document.getElementById('store-modal').style.display = 'flex';
+      updateAllUI();
+    };
+    document.getElementById('closeStoreBtn').onclick = function() {
+      document.getElementById('store-modal').style.display = 'none';
+    };
+    // Code input menu logic
+    document.getElementById('codeBtn').onclick = function() {
+      document.getElementById('code-modal').style.display = 'flex';
+      document.getElementById('codeInput').value = '';
+      document.getElementById('codeResultMsg').style.display = 'none';
+    };
+    document.getElementById('closeCodeBtn').onclick = function() {
+      document.getElementById('code-modal').style.display = 'none';
+    };
+    document.getElementById('redeemCodeBtn').onclick = function() {
+      const code = document.getElementById('codeInput').value.trim().toUpperCase();
+      const msg = document.getElementById('codeResultMsg');
+      msg.style.display = '';
+      // Plain text code checks (case-insensitive)
+      if (code === 'FREE100K') {
+        setEnergy(getEnergy().plus(100000));
+        msg.textContent = 'Success! 100,000 energy added.';
+        msg.style.color = '#69f0ae';
+        showToast('Code redeemed: 100,000 energy!');
+        updateAllUI();
+      } else if (code === 'COALBOOST') {
+        if (!perm2xCoal) {
+          perm2xCoal = true;
+          msg.textContent = 'Success! Permanent 2x Coal boost unlocked!';
+          msg.style.color = '#69f0ae';
+          showToast('Code redeemed: Permanent 2x Coal boost!');
+          recalculateEPS();
+          updateAllUI();
+        } else {
+          msg.textContent = 'Code already used.';
+          msg.style.color = '#ff5252';
+        }
+      } else if (code === 'IRONBOOST2025') {
+        if (!perm2xIron) {
+          perm2xIron = true;
+          msg.textContent = 'Success! Permanent 2x Iron boost unlocked!';
+          msg.style.color = '#69f0ae';
+          showToast('Code redeemed: Permanent 2x Iron boost!');
+          recalculateEPS();
+          updateAllUI();
+        } else {
+          msg.textContent = 'Code already used.';
+          msg.style.color = '#ff5252';
+        }
+      } else {
+        msg.textContent = 'Invalid code.';
+        msg.style.color = '#ff5252';
+      }
+    };
+    document.getElementById('buy-boost-2x').onclick = function() {
+      if (boost2xActive) {
+        showToast('Boost already active!');
+        return;
+      }
+      const cost = new BigNumber(100000);
+      if (!getEnergy().gte(cost)) {
+        showToast('Not enough energy!');
+        return;
+      }
+      setEnergy(getEnergy().minus(cost));
+      boost2xActive = true;
+      boost2xEndTime = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+      showToast('2x Energy Output for 24h activated!');
+      recalculateEPS();
+      updateAllUI();
+    };
+    // Permanent 2x Coal boost
+    document.getElementById('buy-perm-2x-coal').onclick = function() {
+      if (perm2xCoal) {
+        showToast('Already purchased!');
+        return;
+      }
+      const cost = new BigNumber(1000000);
+      if (!getEnergy().gte(cost)) {
+        showToast('Not enough energy!');
+        return;
+      }
+      setEnergy(getEnergy().minus(cost));
+      perm2xCoal = true;
+      showToast('Permanent 2x Coal Generator Output purchased!');
+      recalculateEPS();
+      updateAllUI();
+    };
 
     // Game loop
     setInterval(() => {
       let totalAdd = new BigNumber(0);
       for (const key in generatorConfig) {
-        totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(generatorConfig[key].power()));
+        let power = generatorConfig[key].power();
+        if (key === 'coal' && perm2xCoal) power *= 2;
+        if (key === 'iron' && perm2xIron) power *= 2;
+        totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(power));
       }
+      // Apply 2x boost if active
+      if (boost2xActive) totalAdd = totalAdd.times(2);
       setEnergy(getEnergy().plus(totalAdd));
       recalculateEPS();
       updateAllUI();
     }, 1000);
+
+    // Boost timer check
+    setInterval(() => {
+      if (boost2xActive && Date.now() > boost2xEndTime) {
+        boost2xActive = false;
+        boost2xEndTime = 0;
+        showToast('2x Energy Output boost expired.');
+        recalculateEPS();
+        updateAllUI();
+      } else if (boost2xActive) {
+        updateAllUI();
+      }
+    }, 10000);
+
+    // Initial render
+    renderGenerators();
   };
+
+  // Format boost time left
+  function formatBoostTime() {
+    if (!boost2xActive) return '';
+    const ms = boost2xEndTime - Date.now();
+    if (ms <= 0) return 'Expired';
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    return `${h}h ${m}m`;
+  }
 </script>
 </body>
 </html>
