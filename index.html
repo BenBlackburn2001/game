@@ -259,6 +259,34 @@
 
   // --- Factory Animation Update ---
   function updateFactoryAnimations() {
+    // Unique colors for each generator
+    const generatorColors = {
+      coal:      "#424242",
+      iron:      "#bdbdbd",
+      gold:      "#ffd600",
+      ruby:      "#d32f2f",
+      emerald:   "#43a047",
+      diamond:   "#81d4fa",
+      platinum:  "#e5e4e2",
+      uranium:   "#cddc39",
+      sapphire:  "#1976d2",
+      obsidian:  "#212121",
+      mythril:   "#90caf9",
+      amethyst:  "#ab47bc",
+      topaz:     "#ffb300",
+      onyx:      "#000000",
+      crystal:   "#e1f5fe",
+      void:      "#212121",
+      nebula:    "#7e57c2",
+      quantum:   "#00bcd4",
+      singularity: "#263238",
+      eternity:  "#fbc02d",
+      omega:     "#f44336",
+      alpha:     "#8bc34a",
+      zeta:      "#00e676",
+      lambda:    "#ff4081",
+      sigma:     "#3f51b5"
+    };
     for (const key in generatorConfig) {
       const gen = generatorConfig[key];
       let container = document.getElementById(`factory-anim-${key}`);
@@ -277,12 +305,12 @@
       const factoriesToShow = Math.min(owned, 10);
       container.innerHTML = '';
       for (let i = 0; i < factoriesToShow; i++) {
+        const color = generatorColors[key] || "#1F1C1C";
         const factoryDiv = document.createElement('div');
         factoryDiv.className = 'factory-animation';
-        // Example SVG animation (replace with your own artwork)
         factoryDiv.innerHTML = `
           <svg viewBox="0 0 48 48" width="48" height="48">
-            <rect x="8" y="24" width="32" height="16" rx="4" fill="#888"/>
+            <rect x="8" y="24" width="32" height="16" rx="4" fill="${color}"/>
             <rect x="12" y="20" width="8" height="8" fill="#bdbdbd"/>
             <rect x="28" y="20" width="8" height="8" fill="#bdbdbd"/>
             <rect x="20" y="12" width="8" height="12" fill="#ffd600"/>
