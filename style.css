@@ -255,6 +255,52 @@ h1 {
   50% { transform: scale(1.08); opacity: 0.85; }
   100% { transform: scale(1); opacity: 1; }
 }
+.ascend-node {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #181a1b;
+  border: 3px solid #ffb300;
+  box-shadow: 0 2px 12px #000a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 32px;
+  position: absolute;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.ascend-node.locked {
+  border-color: #888;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ascend-node .ascend-icon {
+  font-size: 2em;
+  margin-bottom: 4px;
+}
+.ascend-node .ascend-label {
+  font-size: 0.8em;
+  color: #fff;
+  text-align: center;
+}
+.ascend-node .ascend-cost {
+  font-size: 0.7em;
+  color: #ffb300;
+}
+.ascend-node.applied {
+  border-color: #69f0ae;
+  box-shadow: 0 0 16px #69f0ae;
+}
+.ascend-node:focus {
+  outline: 2px solid #ffb300;
+}
+.ascend-line {
+  stroke: #ffb300;
+  stroke-width: 4;
+  opacity: 0.7;
+}
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   body {

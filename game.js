@@ -641,7 +641,7 @@
     };
     document.getElementById('ascendUpgradesBtn').onclick = function() {
       document.getElementById('ascend-upgrades-modal').style.display = 'flex';
-      renderAscensionUpgrades();
+      renderAscensionSkillTree();
     };
     document.getElementById('closeAscendUpgradesBtn').onclick = function() {
       document.getElementById('ascend-upgrades-modal').style.display = 'none';
@@ -778,4 +778,78 @@
         updateAllUI();
       };
     });
+  }
+
+  const ascendSkillTree = [
+    {
+      key: 'coal',
+      name: 'Super Coal Gen',
+      icon: '⛏️',
+      cost: 1,
+      applied: () => superGens.coal,
+      apply: () => { superGens.coal = true; },
+      unlock: () => true,
+      x: 100, y: 160
+    },
+    {
+      key: 'iron',
+      name: 'Super Iron Gen',
+      icon: '🪨',
+      cost: 2,
+      applied: () => superGens.iron,
+      apply: () => { superGens.iron = true; },
+      unlock: () => superGens.coal,
+      x: 250, y: 80
+    },
+    {
+      key: 'gold',
+      name: 'Super Gold Gen',
+      icon: '💰',
+      cost: 3,
+      applied: () => superGens.gold,
+      apply: () => { superGens.gold = true; },
+      unlock: () => superGens.iron,
+      x: 400, y: 160
+    }
+    // Add more nodes as desired, chaining unlocks
+  ];
+
+  function renderAscensionSkillTree() {
+    const nodesDiv = document.getElementById('ascend-skilltree-nodes');
+    const svg = document.getElementById('ascend-skilltree-lines');
+    nodesDiv.innerHTML = '';
+    svg.innerHTML = '';
+    // Render nodes
+    ascendSkillTree.forEach((node, idx) => {
+      const div = document.createElement('div');
+      div.className = 'ascend-node' +
+        (node.applied() ? ' applied' : '') +
+        (!node.unlock() ? ' locked' : '');
+      div.tabIndex = 0;
+      div.style.left = node.x + 'px';
+      div.style.top = node.y + 'px';
+      div.innerHTML = `
+        <div class="ascend-icon">${node.icon}</div>
+        <div class="ascend-label">${node.name}</div>
+        <div class="ascend-cost">Cost: ${node.cost}</div>
+      `;
+      if (!node.applied() && node.unlock() && ascensionPoints >= node.cost) {
+        div.onclick = () => {
+          ascensionPoints -= node.cost;
+          node.apply();
+          showToast(`${node.name} applied!`);
+          recalculateEPS();
+          updateAllUI();
+          renderAscensionSkillTree();
+        };
+      }
+      nodesDiv.appendChild(div);
+    });
+    // Draw lines between nodes
+    for (let i = 1; i < ascendSkillTree.length; ++i) {
+      const from = ascendSkillTree[i - 1];
+      const to = ascendSkillTree[i];
+      svg.innerHTML += `<line class="ascend-line" x1="${from.x + 32}" y1="${from.y + 32}" x2="${to.x + 32}" y2="${to.y + 32}" />`;
+    }
+    document.getElementById('ascendPointsDisplay').textContent = ascensionPoints;
   }

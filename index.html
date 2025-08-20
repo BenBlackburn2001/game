@@ -92,27 +92,19 @@
     </div>
     <!-- Ascension Upgrades Modal -->
     <div id="ascend-upgrades-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(24,26,27,0.96); z-index:10003; align-items:center; justify-content:center;">
-      <div style="background:#23272b; border-radius:16px; box-shadow:0 4px 32px #000a; padding:32px 24px; max-width:420px; width:90vw; margin:auto; position:relative;">
+      <div style="background:#23272b; border-radius:16px; box-shadow:0 4px 32px #000a; padding:32px 24px; max-width:600px; width:95vw; margin:auto; position:relative;">
         <button id="closeAscendUpgradesBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#ffb300; font-size:1.5em; cursor:pointer;">&times;</button>
         <h2 style="color:#ffb300; text-align:center; margin-bottom:24px; font-family:'Orbitron',monospace;">Ascension Upgrades</h2>
-        <div style="color:#fff; margin-bottom:16px;">
+        <div style="color:#fff; margin-bottom:16px; text-align:center;">
           Ascension Points: <span id="ascendPointsDisplay">0</span>
         </div>
-        <div id="ascend-upgrades-list">
-          <!-- Example upgrades -->
-          <div style="margin-bottom:18px; padding:12px; background:#181a1b; border-radius:8px;">
-            <div style="font-weight:bold; color:#fff;">Super Coal Gen</div>
-            <div style="color:#ffb300; margin-bottom:8px;">Cost: 1 Ascension Point</div>
-            <button id="buySuperCoalBtn" class="menu-button" style="width:100%;">Apply to Coal Generator</button>
-            <div id="superCoalMsg" style="color:#69f0ae; margin-top:8px; display:none;">Applied!</div>
+        <div id="ascend-skilltree-container" style="position:relative; min-height:320px; display:flex; justify-content:center; align-items:center;">
+          <svg id="ascend-skilltree-lines" width="100%" height="320" style="position:absolute; left:0; top:0; pointer-events:none;">
+            <!-- Lines will be drawn dynamically by JS -->
+          </svg>
+          <div id="ascend-skilltree-nodes" style="display:flex; justify-content:center; align-items:center; width:100%; position:relative;">
+            <!-- Nodes will be rendered by JS -->
           </div>
-          <div style="margin-bottom:18px; padding:12px; background:#181a1b; border-radius:8px;">
-            <div style="font-weight:bold; color:#fff;">Super Iron Gen</div>
-            <div style="color:#ffb300; margin-bottom:8px;">Cost: 2 Ascension Points</div>
-            <button id="buySuperIronBtn" class="menu-button" style="width:100%;">Apply to Iron Generator</button>
-            <div id="superIronMsg" style="color:#69f0ae; margin-top:8px; display:none;">Applied!</div>
-          </div>
-          <!-- Add more upgrades as needed -->
         </div>
       </div>
     </div>
