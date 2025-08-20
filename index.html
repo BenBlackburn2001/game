@@ -46,6 +46,8 @@
     <button id="resetBtn" class="menu-button">Reset Game</button>
     <button id="storeBtn" class="menu-button">Store</button>
     <button id="codeBtn" class="menu-button">Enter Code</button>
+    <button id="ascendBtn" class="menu-button">Ascension</button>
+    <button id="ascendUpgradesBtn" class="menu-button">Ascension Upgrades</button> <!-- New Ascension Upgrades button -->
   </div>
   <main>
     <h1>Generators Game</h1>
@@ -93,6 +95,46 @@
         </div>
       </div>
     </div>
+    <!-- Ascension Modal -->
+    <div id="ascension-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(24,26,27,0.96); z-index:10002; align-items:center; justify-content:center;">
+      <div style="background:#23272b; border-radius:16px; box-shadow:0 4px 32px #000a; padding:32px 24px; max-width:400px; width:90vw; margin:auto; position:relative;">
+        <button id="closeAscendBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#ffb300; font-size:1.5em; cursor:pointer;">&times;</button>
+        <h2 style="color:#ffb300; text-align:center; margin-bottom:24px; font-family:'Orbitron',monospace;">Ascension</h2>
+        <div style="color:#fff; margin-bottom:16px;">
+          Ascend to reset your progress for powerful bonuses.<br>
+          <b>Requirement:</b> 1e9 Energy<br>
+          <b>Reward:</b> +10% permanent EPS boost per ascension.
+        </div>
+        <button id="ascendConfirmBtn" class="menu-button" style="width:100%;">Ascend</button>
+        <div id="ascendResultMsg" style="color:#69f0ae; margin-top:8px; display:none;"></div>
+      </div>
+    </div>
+    <!-- Ascension Upgrades Modal -->
+    <div id="ascend-upgrades-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(24,26,27,0.96); z-index:10003; align-items:center; justify-content:center;">
+      <div style="background:#23272b; border-radius:16px; box-shadow:0 4px 32px #000a; padding:32px 24px; max-width:420px; width:90vw; margin:auto; position:relative;">
+        <button id="closeAscendUpgradesBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#ffb300; font-size:1.5em; cursor:pointer;">&times;</button>
+        <h2 style="color:#ffb300; text-align:center; margin-bottom:24px; font-family:'Orbitron',monospace;">Ascension Upgrades</h2>
+        <div style="color:#fff; margin-bottom:16px;">
+          Ascension Points: <span id="ascendPointsDisplay">0</span>
+        </div>
+        <div id="ascend-upgrades-list">
+          <!-- Example upgrades -->
+          <div style="margin-bottom:18px; padding:12px; background:#181a1b; border-radius:8px;">
+            <div style="font-weight:bold; color:#fff;">Super Coal Gen</div>
+            <div style="color:#ffb300; margin-bottom:8px;">Cost: 1 Ascension Point</div>
+            <button id="buySuperCoalBtn" class="menu-button" style="width:100%;">Apply to Coal Generator</button>
+            <div id="superCoalMsg" style="color:#69f0ae; margin-top:8px; display:none;">Applied!</div>
+          </div>
+          <div style="margin-bottom:18px; padding:12px; background:#181a1b; border-radius:8px;">
+            <div style="font-weight:bold; color:#fff;">Super Iron Gen</div>
+            <div style="color:#ffb300; margin-bottom:8px;">Cost: 2 Ascension Points</div>
+            <button id="buySuperIronBtn" class="menu-button" style="width:100%;">Apply to Iron Generator</button>
+            <div id="superIronMsg" style="color:#69f0ae; margin-top:8px; display:none;">Applied!</div>
+          </div>
+          <!-- Add more upgrades as needed -->
+        </div>
+      </div>
+    </div>
   </main>
   <div id="toast-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
@@ -102,6 +144,12 @@
   let boost2xEndTime = 0;
   let perm2xCoal = false;
   let perm2xIron = false;
+
+  // --- Ascension State ---
+  let ascensionCount = 0;
+  let ascensionEPSBonus = 1;
+  let ascensionPoints = 0;
+  let superGens = { coal: false, iron: false };
 
   // --- Toast Notification ---
   function showToast(message) {
@@ -252,9 +300,13 @@
       let power = generatorConfig[key].power();
       if (key === 'coal' && perm2xCoal) power *= 2;
       if (key === 'iron' && perm2xIron) power *= 2;
+      // Super Gen bonus: 2x output for super gens
+      if (key === 'coal' && superGens.coal) power *= 2;
+      if (key === 'iron' && superGens.iron) power *= 2;
       total = total.plus(getGenCount(generatorConfig[key].key).times(power));
     }
     if (boost2xActive) total = total.times(2);
+    total = total.times(ascensionEPSBonus); // Apply ascension bonus
     setEPS(total);
   }
 
@@ -694,6 +746,58 @@
       setEnergy(getEnergy().minus(cost));
       perm2xCoal = true;
       showToast('Permanent 2x Coal Generator Output purchased!');
+      recalculateEPS();
+      updateAllUI();
+    };
+    document.getElementById('ascendBtn').onclick = function() {
+      document.getElementById('ascension-modal').style.display = 'flex';
+      document.getElementById('ascendResultMsg').style.display = 'none';
+    };
+    document.getElementById('closeAscendBtn').onclick = function() {
+      document.getElementById('ascension-modal').style.display = 'none';
+    };
+    document.getElementById('ascendConfirmBtn').onclick = function() {
+      const msg = document.getElementById('ascendResultMsg');
+      msg.style.display = '';
+      if (getEnergy().gte("1e9")) {
+        ascensionCount += 1;
+        ascensionEPSBonus = 1 + ascensionCount * 0.1;
+        ascensionPoints += 1; // Award 1 ascension point per ascension
+        resetGame();
+        msg.textContent = `Ascended! Permanent EPS bonus: +${(ascensionEPSBonus * 100 - 100).toFixed(0)}%`;
+        msg.style.color = '#69f0ae';
+        showToast('Ascension complete! EPS permanently boosted.');
+      } else {
+        msg.textContent = 'Not enough energy to ascend.';
+        msg.style.color = '#ff5252';
+      }
+    };
+    document.getElementById('ascendUpgradesBtn').onclick = function() {
+      document.getElementById('ascend-upgrades-modal').style.display = 'flex';
+      document.getElementById('ascendPointsDisplay').textContent = ascensionPoints;
+      document.getElementById('superCoalMsg').style.display = superGens.coal ? '' : 'none';
+      document.getElementById('superIronMsg').style.display = superGens.iron ? '' : 'none';
+    };
+    document.getElementById('closeAscendUpgradesBtn').onclick = function() {
+      document.getElementById('ascend-upgrades-modal').style.display = 'none';
+    };
+    document.getElementById('buySuperCoalBtn').onclick = function() {
+      if (ascensionPoints < 1 || superGens.coal) return;
+      ascensionPoints -= 1;
+      superGens.coal = true;
+      document.getElementById('superCoalMsg').style.display = '';
+      document.getElementById('ascendPointsDisplay').textContent = ascensionPoints;
+      showToast('Super Coal Generator applied!');
+      recalculateEPS();
+      updateAllUI();
+    };
+    document.getElementById('buySuperIronBtn').onclick = function() {
+      if (ascensionPoints < 2 || superGens.iron) return;
+      ascensionPoints -= 2;
+      superGens.iron = true;
+      document.getElementById('superIronMsg').style.display = '';
+      document.getElementById('ascendPointsDisplay').textContent = ascensionPoints;
+      showToast('Super Iron Generator applied!');
       recalculateEPS();
       updateAllUI();
     };
