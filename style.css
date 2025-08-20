@@ -237,6 +237,10 @@ h1 {
 .factory-anim-container {
   margin-top: 8px;
   min-height: 52px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
 }
 .factory-animation {
   display: inline-block;
