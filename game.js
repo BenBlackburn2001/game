@@ -690,35 +690,25 @@ const generatorMaxUpgrades = {};
     document.getElementById('closeAscendUpgradesBtn').onclick = function() {
       document.getElementById('ascend-upgrades-modal').style.display = 'none';
     };
-    document.getElementById('buySuperCoalBtn').onclick = function() {
-      if (ascensionPoints < 1 || superGens.coal) return;
-      ascensionPoints -= 1;
-      superGens.coal = true;
-      document.getElementById('superCoalMsg').style.display = '';
-      document.getElementById('ascendPointsDisplay').textContent = ascensionPoints;
-      showToast('Super Coal Generator applied!');
-      recalculateEPS();
-      updateAllUI();
-    };
-    document.getElementById('buySuperIronBtn').onclick = function() {
-      if (ascensionPoints < 2 || superGens.iron) return;
-      ascensionPoints -= 2;
-      superGens.iron = true;
-      document.getElementById('superIronMsg').style.display = '';
-      document.getElementById('ascendPointsDisplay').textContent = ascensionPoints;
-      showToast('Super Iron Generator applied!');
-      recalculateEPS();
-      updateAllUI();
-    };
     setInterval(() => {
       let totalAdd = new BigNumber(0);
       for (const key in generatorConfig) {
         let power = generatorConfig[key].power();
+        // Apply permanent boosts
         if (key === 'coal' && perm2xCoal) power *= 2;
         if (key === 'iron' && perm2xIron) power *= 2;
+        // Apply ascension super gens
+        if (superGens[key]) power *= 2;
         totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(power));
       }
       if (boost2xActive) totalAdd = totalAdd.times(2);
+      // Defensive: ensure ascensionEPSBonus is always at least 1
+      let epsBonus = ascensionEPSBonus;
+      if (!epsBonus || isNaN(epsBonus) || epsBonus < 1) {
+        epsBonus = 1 + (ascensionCount || 0) * 0.1;
+        ascensionEPSBonus = epsBonus;
+      }
+      totalAdd = totalAdd.times(epsBonus);
       setEnergy(getEnergy().plus(totalAdd));
       recalculateEPS();
       updateAllUI();
