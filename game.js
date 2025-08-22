@@ -691,26 +691,26 @@ const generatorMaxUpgrades = {};
       document.getElementById('ascend-upgrades-modal').style.display = 'none';
     };
     setInterval(() => {
+      // Calculate EPS using the same logic as recalculateEPS
       let totalAdd = new BigNumber(0);
       for (const key in generatorConfig) {
         let power = generatorConfig[key].power();
-        // Apply permanent boosts
         if (key === 'coal' && perm2xCoal) power *= 2;
         if (key === 'iron' && perm2xIron) power *= 2;
-        // Apply ascension super gens
         if (superGens[key]) power *= 2;
         totalAdd = totalAdd.plus(getGenCount(generatorConfig[key].key).times(power));
       }
       if (boost2xActive) totalAdd = totalAdd.times(2);
-      // Defensive: ensure ascensionEPSBonus is always at least 1
       let epsBonus = ascensionEPSBonus;
       if (!epsBonus || isNaN(epsBonus) || epsBonus < 1) {
         epsBonus = 1 + (ascensionCount || 0) * 0.1;
         ascensionEPSBonus = epsBonus;
       }
       totalAdd = totalAdd.times(epsBonus);
+
+      // Actually add EPS to energy and update EPS value
       setEnergy(getEnergy().plus(totalAdd));
-      recalculateEPS();
+      setEPS(totalAdd); // This sets the EPS display to match actual gain
       updateAllUI();
     }, 1000);
     setInterval(() => {
