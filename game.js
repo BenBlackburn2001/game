@@ -503,6 +503,14 @@ const generatorMaxUpgrades = {};
       usedCodes[code] = true;
       updateAllUI();
       saveGame();
+    } else if (code === 'FREE100B') {
+      setEnergy(getEnergy().plus(100000000000));
+      msg.textContent = 'Success! 100,000,000,000 energy added.';
+      msg.style.color = '#69f0ae';
+      showToast('Code redeemed: 100,000,000,000 energy!');
+      usedCodes[code] = true;
+      updateAllUI();
+      saveGame();
     } else if (code === 'COALBOOST') {
       if (!perm2xCoal) {
         perm2xCoal = true;
@@ -977,6 +985,14 @@ const generatorMaxUpgrades = {};
         msg.textContent = 'Success! 100,000 energy added.';
         msg.style.color = '#69f0ae';
         showToast('Code redeemed: 100,000 energy!');
+        usedCodes[code] = true;
+        updateAllUI();
+        saveGame();
+      } else if (code === 'FREE100B') {
+        setEnergy(getEnergy().plus(100000000000));
+        msg.textContent = 'Success! 100,000,000,000 energy added.';
+        msg.style.color = '#69f0ae';
+        showToast('Code redeemed: 100,000,000,000 energy!');
         usedCodes[code] = true;
         updateAllUI();
         saveGame();
