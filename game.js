@@ -1,92 +1,95 @@
 // --- Store Boost State ---
-  let boost2xActive = false;
-  let boost2xEndTime = 0;
-  let perm2xCoal = false;
-  let perm2xIron = false;
+let boost2xActive = false;
+let boost2xEndTime = 0;
+let perm2xCoal = false;
+let perm2xIron = false;
 
-  // --- Ascension State ---
-  let ascensionCount = 0;
-  let ascensionEPSBonus = 1;
-  let ascensionPoints = 0;
-  let superGens = { coal: false, iron: false };
+// --- Ascension State ---
+let ascensionCount = 0;
+let ascensionEPSBonus = 1;
+let ascensionPoints = 0;
+let superGens = { coal: false, iron: false, gold: false };
 
-  // --- Toast Notification ---
-  function showToast(message) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => {
-      toast.style.transition = 'opacity 0.5s';
-      toast.style.opacity = '0';
-      setTimeout(() => container.removeChild(toast), 500);
-    }, 2000);
+// --- Used Codes State ---
+let usedCodes = {};
+
+// --- Toast Notification ---
+function showToast(message) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.5s';
+    toast.style.opacity = '0';
+    setTimeout(() => container.removeChild(toast), 500);
+  }, 2000);
+}
+
+// --- Initial Upgrade/Max Upgrade Costs for Reset ---
+// Balanced for smoother progression and realistic upgrade pacing
+const initialUpgradeCosts = {
+  coal: 15, iron: 120, gold: 350, ruby: 900, emerald: 1800,
+  diamond: 50000, platinum: 250000, uranium: 1000000, sapphire: 5000000, obsidian: 20000000,
+  mythril: 100000000, amethyst: 500000000, topaz: 2000000000, onyx: 10000000000, crystal: 50000000000,
+  void: 250000000000, nebula: 1000000000000, quantum: 5000000000000, singularity: 20000000000000, eternity: 100000000000000,
+  omega: 500000000000000, alpha: 2000000000000000, zeta: 10000000000000000, lambda: 50000000000000000, sigma: 200000000000000000
+};
+const initialMaxUpgradeCosts = {
+  coal: 500, iron: 750, gold: 1200, ruby: 2000, emerald: 3500,
+  diamond: 2500000, platinum: 10000000, uranium: 40000000, sapphire: 150000000, obsidian: 600000000,
+  mythril: 2500000000, amethyst: 10000000000, topaz: 40000000000, onyx: 150000000000, crystal: 600000000000,
+  void: 2500000000000, nebula: 10000000000000, quantum: 40000000000000, singularity: 150000000000000, eternity: 600000000000000,
+  omega: 2500000000000000, alpha: 10000000000000000, zeta: 40000000000000000, lambda: 150000000000000000, sigma: 600000000000000000
+};
+
+// --- Default Game Data ---
+const defaultGameData = {
+  energy: "10",
+  eps: "0",
+  generators: "0",
+  generatorsCoal: "0",
+  generatorsIron: "0",
+  generatorsGold: "0",
+  generatorsRuby: "0",
+  generatorsEmerald: "0",
+  generatorsDiamond: "0",
+  generatorsPlatinum: "0",
+  generatorsUranium: "0",
+  generatorsSapphire: "0",
+  generatorsObsidian: "0",
+  generatorsMythril: "0",
+  generatorsAmethyst: "0",
+  generatorsTopaz: "0",
+  generatorsOnyx: "0",
+  generatorsCrystal: "0",
+  generatorsVoid: "0",
+  generatorsNebula: "0",
+  generatorsQuantum: "0",
+  generatorsSingularity: "0",
+  generatorsEternity: "0",
+  generatorsOmega: "0",
+  generatorsAlpha: "0",
+  generatorsZeta: "0",
+  generatorsLambda: "0",
+  generatorsSigma: "0",
+  generatorMax: {
+    coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10, diamond: 1,
+    platinum: 1, uranium: 1, sapphire: 1, obsidian: 1,
+    mythril: 1, amethyst: 1, topaz: 1, onyx: 1, crystal: 1,
+    void: 1, nebula: 1, quantum: 1, singularity: 1, eternity: 1,
+    omega: 1, alpha: 1, zeta: 1, lambda: 1, sigma: 1
   }
+};
 
-  // --- Initial Upgrade/Max Upgrade Costs for Reset ---
-  // Balanced for smoother progression and realistic upgrade pacing
-  const initialUpgradeCosts = {
-    coal: 15, iron: 120, gold: 350, ruby: 900, emerald: 1800,
-    diamond: 50000, platinum: 250000, uranium: 1000000, sapphire: 5000000, obsidian: 20000000,
-    mythril: 100000000, amethyst: 500000000, topaz: 2000000000, onyx: 10000000000, crystal: 50000000000,
-    void: 250000000000, nebula: 1000000000000, quantum: 5000000000000, singularity: 20000000000000, eternity: 100000000000000,
-    omega: 500000000000000, alpha: 2000000000000000, zeta: 10000000000000000, lambda: 50000000000000000, sigma: 200000000000000000
-  };
-  const initialMaxUpgradeCosts = {
-    coal: 500, iron: 750, gold: 1200, ruby: 2000, emerald: 3500,
-    diamond: 2500000, platinum: 10000000, uranium: 40000000, sapphire: 150000000, obsidian: 600000000,
-    mythril: 2500000000, amethyst: 10000000000, topaz: 40000000000, onyx: 150000000000, crystal: 600000000000,
-    void: 2500000000000, nebula: 10000000000000, quantum: 40000000000000, singularity: 150000000000000, eternity: 600000000000000,
-    omega: 2500000000000000, alpha: 10000000000000000, zeta: 40000000000000000, lambda: 150000000000000000, sigma: 600000000000000000
-  };
+let username = "";
+let gameData = JSON.parse(JSON.stringify(defaultGameData));
+let multiplier = 1;
 
-  // --- Default Game Data ---
-  const defaultGameData = {
-    energy: "10",
-    eps: "0",
-    generators: "0",
-    generatorsCoal: "0",
-    generatorsIron: "0",
-    generatorsGold: "0",
-    generatorsRuby: "0",
-    generatorsEmerald: "0",
-    generatorsDiamond: "0",
-    generatorsPlatinum: "0",
-    generatorsUranium: "0",
-    generatorsSapphire: "0",
-    generatorsObsidian: "0",
-    generatorsMythril: "0",
-    generatorsAmethyst: "0",
-    generatorsTopaz: "0",
-    generatorsOnyx: "0",
-    generatorsCrystal: "0",
-    generatorsVoid: "0",
-    generatorsNebula: "0",
-    generatorsQuantum: "0",
-    generatorsSingularity: "0",
-    generatorsEternity: "0",
-    generatorsOmega: "0",
-    generatorsAlpha: "0",
-    generatorsZeta: "0",
-    generatorsLambda: "0",
-    generatorsSigma: "0",
-    generatorMax: {
-      coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10, diamond: 1,
-      platinum: 1, uranium: 1, sapphire: 1, obsidian: 1,
-      mythril: 1, amethyst: 1, topaz: 1, onyx: 1, crystal: 1,
-      void: 1, nebula: 1, quantum: 1, singularity: 1, eternity: 1,
-      omega: 1, alpha: 1, zeta: 1, lambda: 1, sigma: 1
-    }
-  };
-
-  let username = "";
-  let gameData = JSON.parse(JSON.stringify(defaultGameData));
-  let multiplier = 1;
-
-  // --- Upgrades State ---
-  const generatorUpgrades = {};
-  const generatorMaxUpgrades = {};
+// --- Upgrades State ---
+const generatorUpgrades = {};
+const generatorMaxUpgrades = {};
   // --- Generator Config (with tier property) ---
   const generatorConfig = {
     // Tier 1
@@ -159,9 +162,9 @@
       let power = generatorConfig[key].power();
       if (key === 'coal' && perm2xCoal) power *= 2;
       if (key === 'iron' && perm2xIron) power *= 2;
-      // Super Gen bonus: 2x output for super gens
       if (key === 'coal' && superGens.coal) power *= 2;
       if (key === 'iron' && superGens.iron) power *= 2;
+      if (key === 'gold' && superGens.gold) power *= 2;
       total = total.plus(getGenCount(generatorConfig[key].key).times(power));
     }
     if (boost2xActive) total = total.times(2);
@@ -374,8 +377,14 @@
         cost: generatorMaxUpgrades[key].cost.toString()
       };
     }
+    // Save all persistent state
     saveCopy.ascensionPoints = ascensionPoints;
+    saveCopy.ascensionCount = ascensionCount;
+    saveCopy.ascensionEPSBonus = ascensionEPSBonus;
     saveCopy.superGens = superGens;
+    saveCopy.perm2xCoal = perm2xCoal;
+    saveCopy.perm2xIron = perm2xIron;
+    saveCopy.usedCodes = usedCodes;
     try {
       localStorage.setItem(username, JSON.stringify(saveCopy));
       localStorage.setItem('lastUsername', username);
@@ -394,7 +403,12 @@
         const saved = JSON.parse(savedData);
         gameData = saved;
         ascensionPoints = saved.ascensionPoints || 0;
-        superGens = saved.superGens || { coal: false, iron: false };
+        ascensionCount = saved.ascensionCount || 0;
+        ascensionEPSBonus = saved.ascensionEPSBonus || (1 + ascensionCount * 0.1);
+        superGens = saved.superGens || { coal: false, iron: false, gold: false };
+        perm2xCoal = saved.perm2xCoal || false;
+        perm2xIron = saved.perm2xIron || false;
+        usedCodes = saved.usedCodes || {};
         // MIGRATION: Add missing fields for new generators/upgrades
         for (const key in generatorConfig) {
           if (typeof gameData[key] === "undefined" || isNaN(Number(gameData[key]))) {
@@ -460,9 +474,414 @@
       for (const key in generatorMaxUpgrades) {
         generatorMaxUpgrades[key].cost = new BigNumber(initialMaxUpgradeCosts[key]);
       }
-      if (username) {
-        localStorage.removeItem(username);
+      // Reset all persistent state except ascension bonuses (if ascension, keep bonus)
+      perm2xCoal = false;
+      perm2xIron = false;
+      superGens = { coal: false, iron: false, gold: false };
+      usedCodes = {};
+      recalculateEPS();
+      updateAllUI();
+      showToast("Game reset to original state!");
+    }
+  }
+
+  // --- Code Redemption (one-time use per save) ---
+  document.getElementById('redeemCodeBtn').onclick = function() {
+    const code = sanitizeInput(document.getElementById('codeInput').value.trim().toUpperCase());
+    const msg = document.getElementById('codeResultMsg');
+    msg.style.display = '';
+    if (usedCodes[code]) {
+      msg.textContent = 'Code already used.';
+      msg.style.color = '#ff5252';
+      return;
+    }
+    if (code === 'FREE100K') {
+      setEnergy(getEnergy().plus(100000));
+      msg.textContent = 'Success! 100,000 energy added.';
+      msg.style.color = '#69f0ae';
+      showToast('Code redeemed: 100,000 energy!');
+      usedCodes[code] = true;
+      updateAllUI();
+      saveGame();
+    } else if (code === 'COALBOOST') {
+      if (!perm2xCoal) {
+        perm2xCoal = true;
+        msg.textContent = 'Success! Permanent 2x Coal boost unlocked!';
+        msg.style.color = '#69f0ae';
+        showToast('Code redeemed: Permanent 2x Coal boost!');
+        usedCodes[code] = true;
+        recalculateEPS();
+        updateAllUI();
+        saveGame();
+      } else {
+        msg.textContent = 'Code already used.';
+        msg.style.color = '#ff5252';
       }
+    } else if (code === 'IRONBOOST2025') {
+      if (!perm2xIron) {
+        perm2xIron = true;
+        msg.textContent = 'Success! Permanent 2x Iron boost unlocked!';
+        msg.style.color = '#69f0ae';
+        showToast('Code redeemed: Permanent 2x Iron boost!');
+        usedCodes[code] = true;
+        recalculateEPS();
+        updateAllUI();
+        saveGame();
+      } else {
+        msg.textContent = 'Code already used.';
+        msg.style.color = '#ff5252';
+      }
+    } else {
+      msg.textContent = 'Invalid code.';
+      msg.style.color = '#ff5252';
+    }
+  };
+
+  // --- Ascension Modal Logic ---
+  document.getElementById('ascendConfirmBtn').onclick = function() {
+    const msg = document.getElementById('ascendResultMsg');
+    msg.style.display = '';
+    if (getEnergy().gte("1e9")) {
+      ascensionCount += 1;
+      ascensionEPSBonus = 1 + ascensionCount * 0.1;
+      ascensionPoints += 1; // Award 1 ascension point per ascension
+      saveGame();
+      resetGame();
+      recalculateEPS();
+      updateAllUI();
+      msg.textContent = `Ascended! Permanent EPS bonus: +${(ascensionEPSBonus * 100 - 100).toFixed(0)}%`;
+      msg.style.color = '#69f0ae';
+      showToast('Ascension complete! EPS permanently boosted.');
+    } else {
+      msg.textContent = 'Not enough energy to ascend.';
+      msg.style.color = '#ff5252';
+    }
+  };
+
+  // --- EPS Calculation ---
+  function recalculateEPS() {
+    let total = new BigNumber(0);
+    for (const key in generatorConfig) {
+      let power = generatorConfig[key].power();
+      if (key === 'coal' && perm2xCoal) power *= 2;
+      if (key === 'iron' && perm2xIron) power *= 2;
+      if (key === 'coal' && superGens.coal) power *= 2;
+      if (key === 'iron' && superGens.iron) power *= 2;
+      if (key === 'gold' && superGens.gold) power *= 2;
+      total = total.plus(getGenCount(generatorConfig[key].key).times(power));
+    }
+    if (boost2xActive) total = total.times(2);
+    total = total.times(ascensionEPSBonus); // Apply ascension bonus
+    setEPS(total);
+  }
+
+  // --- Factory Animation Update ---
+  function updateFactoryAnimations() {
+    // Unique colors for each generator
+    const generatorColors = {
+      coal:      "#424242",
+      iron:      "#bdbdbd",
+      gold:      "#ffd600",
+      ruby:      "#d32f2f",
+      emerald:   "#43a047",
+      diamond:   "#81d4fa",
+      platinum:  "#e5e4e2",
+      uranium:   "#cddc39",
+      sapphire:  "#1976d2",
+      obsidian:  "#212121",
+      mythril:   "#90caf9",
+      amethyst:  "#ab47bc",
+      topaz:     "#ffb300",
+      onyx:      "#000000",
+      crystal:   "#e1f5fe",
+      void:      "#212121",
+      nebula:    "#7e57c2",
+      quantum:   "#00bcd4",
+      singularity: "#263238",
+      eternity:  "#fbc02d",
+      omega:     "#f44336",
+      alpha:     "#8bc34a",
+      zeta:      "#00e676",
+      lambda:    "#ff4081",
+      sigma:     "#3f51b5"
+    };
+    for (const key in generatorConfig) {
+      const gen = generatorConfig[key];
+      let container = document.getElementById(`factory-anim-${key}`);
+      if (!container) {
+        // Find the generator row and add the container if missing
+        const row = document.getElementById(gen.span)?.parentElement;
+        if (row) {
+          container = document.createElement('div');
+          container.id = `factory-anim-${key}`;
+          container.className = 'factory-anim-container';
+          row.appendChild(container);
+        }
+      }
+      if (!container) continue;
+      const owned = getGenCount(gen.key).toNumber();
+      const factoriesToShow = Math.min(owned, 10);
+      container.innerHTML = '';
+      for (let i = 0; i < factoriesToShow; i++) {
+        const color = generatorColors[key] || "#1F1C1C";
+        const factoryDiv = document.createElement('div');
+        factoryDiv.className = 'factory-animation';
+        factoryDiv.innerHTML = `
+          <svg viewBox="0 0 48 48" width="48" height="48">
+            <rect x="8" y="24" width="32" height="16" rx="4" fill="${color}"/>
+            <rect x="12" y="20" width="8" height="8" fill="#bdbdbd"/>
+            <rect x="28" y="20" width="8" height="8" fill="#bdbdbd"/>
+            <rect x="20" y="12" width="8" height="12" fill="#ffd600"/>
+            <rect x="22" y="8" width="4" height="4" fill="#ffb300"/>
+            <rect x="16" y="36" width="4" height="4" fill="#fff"/>
+            <rect x="28" y="36" width="4" height="4" fill="#fff"/>
+          </svg>
+        `;
+        container.appendChild(factoryDiv);
+      }
+    }
+  }
+
+  // --- UI Update ---
+  function updateAllUI() {
+    document.getElementById('energy').textContent = `Total Energy: ${formatNumber(getEnergy())}`;
+    document.getElementById('eps').textContent = `EPS: ${formatNumber(getEPS())}`;
+    document.getElementById('generators').textContent = `Generators: ${formatNumber(getTotalGenerators())}`;
+    // Store UI
+    const boostMsg = document.getElementById('boost-active-msg');
+    if (boostMsg) {
+      if (boost2xActive) {
+        boostMsg.style.display = '';
+        boostMsg.textContent = `Active! Ends in ${formatBoostTime()}`;
+      } else {
+        boostMsg.style.display = 'none';
+      }
+    }
+    // Permanent coal boost UI
+    const permCoalMsg = document.getElementById('perm-coal-active-msg');
+    const permCoalBtn = document.getElementById('buy-perm-2x-coal');
+    if (permCoalMsg && permCoalBtn) {
+      if (perm2xCoal) {
+        permCoalMsg.style.display = '';
+        permCoalBtn.disabled = true;
+      } else {
+        permCoalMsg.style.display = 'none';
+        permCoalBtn.disabled = false;
+      }
+    }
+
+    for (const key in generatorConfig) {
+      if (!document.getElementById(generatorConfig[key].span)) continue;
+      const gen = generatorConfig[key];
+      const owned = getGenCount(gen.key);
+      if (gameData.generatorMax && gameData.generatorMax[key] !== undefined) {
+        gen.max = gameData.generatorMax[key];
+      }
+      const upgrade = generatorUpgrades[key];
+      const upgradeBtn = document.getElementById(gen.upgrade);
+      upgradeBtn.textContent = `Upgrade (Cost: ${formatNumber(upgrade.cost)}) [+${gen.power()}]`;
+      upgradeBtn.disabled = !getEnergy().gte(upgrade.cost) || owned.lte(0);
+      const maxBtn = document.getElementById(gen.maxBtn);
+      const maxUpgrade = generatorMaxUpgrades[key];
+      maxBtn.textContent = `Max+ (Cost: ${formatNumber(maxUpgrade.cost)}) [+${gen.max}]`;
+      maxBtn.disabled = !getEnergy().gte(maxUpgrade.cost);
+      const sellBtn = document.getElementById(gen.sell);
+      sellBtn.disabled = owned.lte(0);
+      if (owned.gte(gen.max)) {
+        document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(owned)} / ${gen.max}`;
+        const btn = document.getElementById(gen.button);
+        btn.textContent = `${gen.label} (MAXED)`;
+        btn.disabled = true;
+        continue;
+      }
+      const cost = getTotalCost(gen.baseCost, owned, multiplier);
+      document.getElementById(gen.span).textContent = `${gen.label}: ${formatNumber(owned)} / ${gen.max}`;
+      const btn = document.getElementById(gen.button);
+      btn.textContent = `Buy ${gen.label.replace('s', '')} (Cost: ${formatNumber(cost)})`;
+      btn.disabled = !getEnergy().gte(cost);
+    }
+    // Update factory animations
+    updateFactoryAnimations();
+  }
+
+  // --- Purchase Logic ---
+  function purchaseGenerator(key) {
+    const gen = generatorConfig[key];
+    const owned = getGenCount(gen.key);
+    if (owned.gte(gen.max)) return;
+    let actualBuyAmount = Math.min(multiplier, gen.max - owned.toNumber());
+    const cost = getTotalCost(gen.baseCost, owned, actualBuyAmount);
+    if (getEnergy().gte(cost)) {
+      setEnergy(getEnergy().minus(cost));
+      setGenCount(gen.key, owned.plus(actualBuyAmount));
+      setTotalGenerators(getTotalGenerators().plus(actualBuyAmount));
+      recalculateEPS();
+      updateAllUI();
+    }
+  }
+
+  // --- Sell Logic ---
+  function sellGenerator(key) {
+    const gen = generatorConfig[key];
+    const owned = getGenCount(gen.key);
+    if (owned.lte(0)) return;
+    setGenCount(gen.key, owned.minus(1));
+    setTotalGenerators(getTotalGenerators().minus(1));
+    setEnergy(getEnergy().plus(gen.baseCost.times(0.5)));
+    recalculateEPS();
+    updateAllUI();
+  }
+
+  // --- Upgrade Logic (per generator) ---
+  function upgradeGenerator(key) {
+    const gen = generatorConfig[key];
+    const upgrade = generatorUpgrades[key];
+    const owned = getGenCount(gen.key);
+    if (getEnergy().gte(upgrade.cost) && owned.gt(0)) {
+      setEnergy(getEnergy().minus(upgrade.cost));
+      upgrade.level += 1;
+      upgrade.cost = upgrade.cost.times(2);
+      recalculateEPS();
+      updateAllUI();
+    }
+  }
+
+  // --- Max Upgrade Logic (per generator) ---
+  function upgradeMaxGenerator(key) {
+    const gen = generatorConfig[key];
+    const maxUpgrade = generatorMaxUpgrades[key];
+    if (getEnergy().gte(maxUpgrade.cost)) {
+      setEnergy(getEnergy().minus(maxUpgrade.cost));
+      gen.max += maxUpgrade.increment;
+      gameData.generatorMax[key] = gen.max;
+      maxUpgrade.cost = maxUpgrade.cost.times(2);
+      updateAllUI();
+    }
+  }
+
+  // --- Save / Load / Reset ---
+  function saveGame() {
+    username = sanitizeInput(document.getElementById('username').value.trim());
+    if (!username) { showToast('Enter your username before saving.'); return; }
+    const saveCopy = { ...gameData, generatorMax: {} };
+    for (const key in generatorConfig) {
+      saveCopy.generatorMax[key] = generatorConfig[key].max;
+    }
+    saveCopy.generatorUpgrades = {};
+    for (const key in generatorUpgrades) {
+      saveCopy.generatorUpgrades[key] = {
+        level: generatorUpgrades[key].level,
+        cost: generatorUpgrades[key].cost.toString()
+      };
+    }
+    saveCopy.generatorMaxUpgrades = {};
+    for (const key in generatorMaxUpgrades) {
+      saveCopy.generatorMaxUpgrades[key] = {
+        cost: generatorMaxUpgrades[key].cost.toString()
+      };
+    }
+    // Save all persistent state
+    saveCopy.ascensionPoints = ascensionPoints;
+    saveCopy.ascensionCount = ascensionCount;
+    saveCopy.ascensionEPSBonus = ascensionEPSBonus;
+    saveCopy.superGens = superGens;
+    saveCopy.perm2xCoal = perm2xCoal;
+    saveCopy.perm2xIron = perm2xIron;
+    saveCopy.usedCodes = usedCodes;
+    try {
+      localStorage.setItem(username, JSON.stringify(saveCopy));
+      localStorage.setItem('lastUsername', username);
+      showToast('Game saved!');
+    } catch (e) {
+      showToast('Save failed!');
+    }
+  }
+
+  function loadGame() {
+    username = sanitizeInput(document.getElementById('username').value.trim());
+    if (!username) { showToast('Enter a username first.'); return; }
+    try {
+      const savedData = localStorage.getItem(username);
+      if (savedData) {
+        const saved = JSON.parse(savedData);
+        gameData = saved;
+        ascensionPoints = saved.ascensionPoints || 0;
+        ascensionCount = saved.ascensionCount || 0;
+        ascensionEPSBonus = saved.ascensionEPSBonus || (1 + ascensionCount * 0.1);
+        superGens = saved.superGens || { coal: false, iron: false, gold: false };
+        perm2xCoal = saved.perm2xCoal || false;
+        perm2xIron = saved.perm2xIron || false;
+        usedCodes = saved.usedCodes || {};
+        // MIGRATION: Add missing fields for new generators/upgrades
+        for (const key in generatorConfig) {
+          if (typeof gameData[key] === "undefined" || isNaN(Number(gameData[key]))) {
+            gameData[key] = "0";
+          }
+          if (!gameData.generatorMax) gameData.generatorMax = {};
+          if (typeof gameData.generatorMax[key] === "undefined" || isNaN(Number(gameData.generatorMax[key]))) {
+            gameData.generatorMax[key] = generatorConfig[key].max;
+          }
+          if (!gameData.generatorUpgrades) gameData.generatorUpgrades = {};
+          if (!gameData.generatorUpgrades[key]) {
+            gameData.generatorUpgrades[key] = {
+              level: 0,
+              cost: initialUpgradeCosts[key] ? initialUpgradeCosts[key].toString() : "1000"
+            };
+          }
+          if (!gameData.generatorMaxUpgrades) gameData.generatorMaxUpgrades = {};
+          if (!gameData.generatorMaxUpgrades[key]) {
+            gameData.generatorMaxUpgrades[key] = {
+              cost: initialMaxUpgradeCosts[key] ? initialMaxUpgradeCosts[key].toString() : "1000"
+            };
+          }
+        }
+        if (gameData.generatorMax) {
+          for (const key in gameData.generatorMax) {
+            generatorConfig[key].max = gameData.generatorMax[key];
+          }
+        }
+        if (gameData.generatorUpgrades) {
+          for (const key in gameData.generatorUpgrades) {
+            generatorUpgrades[key].level = gameData.generatorUpgrades[key].level;
+            generatorUpgrades[key].cost = new BigNumber(gameData.generatorUpgrades[key].cost);
+          }
+        }
+        if (gameData.generatorMaxUpgrades) {
+          for (const key in gameData.generatorMaxUpgrades) {
+            if (gameData.generatorMaxUpgrades[key].cost)
+              generatorMaxUpgrades[key].cost = new BigNumber(gameData.generatorMaxUpgrades[key].cost);
+          }
+        }
+        recalculateEPS();
+        updateAllUI();
+        showToast('Game loaded!');
+      } else {
+        showToast('No save found for this username.');
+      }
+    } catch (e) {
+      showToast('Corrupt save data. Resetting game.');
+      resetGame();
+    }
+  }
+
+  function resetGame() {
+    if (confirm("Are you sure you want to reset your game? This cannot be undone!")) {
+      gameData = JSON.parse(JSON.stringify(defaultGameData));
+      for (const key in generatorConfig) {
+        generatorConfig[key].max = defaultGameData.generatorMax[key];
+      }
+      for (const key in generatorUpgrades) {
+        generatorUpgrades[key].level = 0;
+        generatorUpgrades[key].cost = new BigNumber(initialUpgradeCosts[key]);
+      }
+      for (const key in generatorMaxUpgrades) {
+        generatorMaxUpgrades[key].cost = new BigNumber(initialMaxUpgradeCosts[key]);
+      }
+      // Reset all persistent state except ascension bonuses (if ascension, keep bonus)
+      perm2xCoal = false;
+      perm2xIron = false;
+      superGens = { coal: false, iron: false, gold: false };
+      usedCodes = {};
       recalculateEPS();
       updateAllUI();
       showToast("Game reset to original state!");
@@ -548,20 +967,29 @@
       const code = sanitizeInput(document.getElementById('codeInput').value.trim().toUpperCase());
       const msg = document.getElementById('codeResultMsg');
       msg.style.display = '';
+      if (usedCodes[code]) {
+        msg.textContent = 'Code already used.';
+        msg.style.color = '#ff5252';
+        return;
+      }
       if (code === 'FREE100K') {
         setEnergy(getEnergy().plus(100000));
         msg.textContent = 'Success! 100,000 energy added.';
         msg.style.color = '#69f0ae';
         showToast('Code redeemed: 100,000 energy!');
+        usedCodes[code] = true;
         updateAllUI();
+        saveGame();
       } else if (code === 'COALBOOST') {
         if (!perm2xCoal) {
           perm2xCoal = true;
           msg.textContent = 'Success! Permanent 2x Coal boost unlocked!';
           msg.style.color = '#69f0ae';
           showToast('Code redeemed: Permanent 2x Coal boost!');
+          usedCodes[code] = true;
           recalculateEPS();
           updateAllUI();
+          saveGame();
         } else {
           msg.textContent = 'Code already used.';
           msg.style.color = '#ff5252';
@@ -572,8 +1000,10 @@
           msg.textContent = 'Success! Permanent 2x Iron boost unlocked!';
           msg.style.color = '#69f0ae';
           showToast('Code redeemed: Permanent 2x Iron boost!');
+          usedCodes[code] = true;
           recalculateEPS();
           updateAllUI();
+          saveGame();
         } else {
           msg.textContent = 'Code already used.';
           msg.style.color = '#ff5252';
@@ -630,7 +1060,10 @@
         ascensionCount += 1;
         ascensionEPSBonus = 1 + ascensionCount * 0.1;
         ascensionPoints += 1; // Award 1 ascension point per ascension
+        saveGame();
         resetGame();
+        recalculateEPS();
+        updateAllUI();
         msg.textContent = `Ascended! Permanent EPS bonus: +${(ascensionEPSBonus * 100 - 100).toFixed(0)}%`;
         msg.style.color = '#69f0ae';
         showToast('Ascension complete! EPS permanently boosted.');
