@@ -75,11 +75,11 @@ const defaultGameData = {
   generatorsLambda: "0",
   generatorsSigma: "0",
   generatorMax: {
-    coal: 100, iron: 100, gold: 50, ruby: 25, emerald: 10, diamond: 1,
-    platinum: 1, uranium: 1, sapphire: 1, obsidian: 1,
-    mythril: 1, amethyst: 1, topaz: 1, onyx: 1, crystal: 1,
-    void: 1, nebula: 1, quantum: 1, singularity: 1, eternity: 1,
-    omega: 1, alpha: 1, zeta: 1, lambda: 1, sigma: 1
+    coal: 100, iron: 100, gold: 100, ruby: 100, emerald: 10, diamond: 100,
+    platinum: 100, uranium: 100, sapphire: 100, obsidian: 100,
+    mythril: 75, amethyst: 75, topaz: 75, onyx: 75, crystal: 75,
+    void: 50, nebula: 50, quantum: 50, singularity: 50, eternity: 50,
+    omega: 25, alpha: 25, zeta: 25, lambda: 25, sigma: 25
   }
 };
 
@@ -641,7 +641,7 @@ const generatorMaxUpgrades = {};
       recalculateEPS();
       updateAllUI();
     };
-    document.getElementById('buy-perm-2x-coal').onclick = function() {
+    document.getElementById('buy-perm-2x-coal').onclick = function() { 
       if (perm2xCoal) {
         showToast('Already purchased!');
         return;
