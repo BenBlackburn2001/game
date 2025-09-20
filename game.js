@@ -75,7 +75,7 @@ const defaultGameData = {
   generatorsLambda: "0",
   generatorsSigma: "0",
   generatorMax: {
-    coal: 100, iron: 100, gold: 100, ruby: 100, emerald: 10, diamond: 100,
+    coal: 100, iron: 100, gold: 100, ruby: 100, emerald: 100, diamond: 100,
     platinum: 100, uranium: 100, sapphire: 100, obsidian: 100,
     mythril: 75, amethyst: 75, topaz: 75, onyx: 75, crystal: 75,
     void: 50, nebula: 50, quantum: 50, singularity: 50, eternity: 50,
